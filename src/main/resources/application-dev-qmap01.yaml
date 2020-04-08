@@ -1,0 +1,67 @@
+application:
+  debug: true
+  debugLevel: INFO
+  save:
+    metrics:
+     required: false
+     filename: c:\Users\mickm\eclipse-workspace\mq-metrics\mq-metrics\mySavedMetrics.json
+ibm:
+  mq:
+    multiInstance: false
+    queueManager: QMAP01
+    channel: ADMIN.TLS.SVRCONN
+    connName: localhost(1480)
+    sslCipherSpec: TLS_RSA_WITH_AES_256_CBC_SHA256
+    sslCipherSpec1: TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384
+    useSSL: true
+    user: MQMon01
+    password: Passw0rd
+    local: false
+    keepMetricsWhenQueueManagerIsDown: false
+    clearMetrics: 5
+# accounting / statistics, pcf values, browse true/false - false will delete records
+    pcf:
+      accountingType: MQCFT_STATISTICS
+      parameters: MQIAMO_PUT_MAX_BYTES, MQIAMO_GET_MAX_BYTES, MQIAMO_PUTS, MQIAMO_GETS
+      browse: true
+      period:
+# Collection time periods
+         collections: DAYS, WEEKS, MONTHS, YEARS
+# filter on date / time periods      
+         start: 
+         end: 
+    json:
+      sort: true
+      order: ascending
+# filter queues    
+    objects:
+      queues:
+        include: "*"
+        exclude: SYSTEM.,AMQ.,DUMMY,RFHUTIL.,ERROR.HANDLER
+    event:
+      delayInMilliSeconds: 10000      
+    security:
+      truststore: C:\ProgramData\IBM\MQ\qmgrs\QMAP01\ssl\qmap01jks.jks
+      truststore-password: Passw0rd
+      keystore: C:\ProgramData\IBM\MQ\qmgrs\QMAP01\ssl\qmap01jks.jks
+      keystore-password: Passw0rd
+management:
+  endpoints:
+    web:
+      exposure:
+        include: info, health, prometheus      
+  endpoint:
+    health:
+      show-details: always        
+  security:
+    enabled: false
+info:
+  app:
+    name: MQ-Metrics
+    description: IBM MQ Metrics
+    version: 1.0.0.11
+    java:
+      version: 1.8.0.0
+server:
+  port:
+    8082
