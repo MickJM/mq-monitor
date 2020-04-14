@@ -104,7 +104,10 @@ public class MQAccountingStats {
  * mq:PutCount      999  999   999  999   999  999   999  999   999  999
  * mq:GetCount
  * mq:PutMaxCount
- * mq:GetMaxCount	
+ * mq:GetMaxCount
+ * 
+ * mq:GetFailure       999         999        999        999        999       
+ * mq:PutFailure	   999         999        999        999        999S
  */
 	
 	@PostConstruct
@@ -198,9 +201,7 @@ public class MQAccountingStats {
 	 */
 	private void puts(AccountingEntity ae, Calendar cal, int per) {
 
-		int[] values = ae.getValues();
-		//log.info(ae.getQueueName() + "   " + ae.getStartDate() + " " + ae.getEndTime() + " - " + values[MQConstants.MQPER_NOT_PERSISTENT] + "  " + values[MQConstants.MQPER_PERSISTENT]);
-		
+		int[] values = ae.getValues();		
 		int hourOfDay = cal.get(Calendar.HOUR_OF_DAY); 
 		int dayOfMonth = cal.get(Calendar.DAY_OF_MONTH);
 		int weekOfYear = cal.get(Calendar.WEEK_OF_YEAR);

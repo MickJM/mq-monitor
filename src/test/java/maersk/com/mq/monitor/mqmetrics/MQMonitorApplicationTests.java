@@ -1,4 +1,4 @@
-package maersk.com.mq.metrics.mqmetrics;
+package maersk.com.mq.monitor.mqmetrics;
 
 import static org.junit.Assert.assertTrue;
 
@@ -44,9 +44,9 @@ import maersk.com.mq.monitor.mqmetrics.MQMetricsQueueManager;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = { MQMetricsApplication.class })
 @Component
-public class MQMetricsApplicationTests {
+public class MQMonitorApplicationTests {
 
-	static Logger log = Logger.getLogger(MQMetricsApplicationTests.class);
+	static Logger log = Logger.getLogger(MQMonitorApplicationTests.class);
 		
 	@Autowired
 	private MQMetricsQueueManager qman;
