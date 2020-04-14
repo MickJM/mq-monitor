@@ -34,6 +34,9 @@ import io.micrometer.core.instrument.Tag;
 import io.micrometer.core.instrument.Meter.Id;
 import io.micrometer.core.instrument.MeterRegistry;
 import maersk.com.mq.json.entities.Metric;
+import maersk.com.mq.monitor.mqmetrics.MQConnection;
+import maersk.com.mq.monitor.mqmetrics.MQMetricsApplication;
+import maersk.com.mq.monitor.mqmetrics.MQMetricsQueueManager;
 
 //@ActiveProfiles("test")
 //@SpringBootApplication

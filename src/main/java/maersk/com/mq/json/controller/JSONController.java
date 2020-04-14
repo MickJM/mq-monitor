@@ -28,9 +28,9 @@ import io.micrometer.core.instrument.Timer;
 import io.micrometer.core.instrument.Meter.Id;
 
 import maersk.com.mq.json.entities.*;
-import maersk.com.mq.metrics.mqmetrics.MQMetricsQueueManager;
-import maersk.com.mq.metrics.mqmetrics.MQMonitorBase;
-import maersk.com.mq.metrics.mqmetrics.MQPCFConstants;
+import maersk.com.mq.monitor.mqmetrics.MQMetricsQueueManager;
+import maersk.com.mq.monitor.mqmetrics.MQMonitorBase;
+import maersk.com.mq.monitor.mqmetrics.MQPCFConstants;
 
 @RestController
 @ComponentScan

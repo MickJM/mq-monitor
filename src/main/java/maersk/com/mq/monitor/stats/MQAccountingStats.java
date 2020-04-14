@@ -1,4 +1,4 @@
-package maersk.com.mq.metrics.stats;
+package maersk.com.mq.monitor.stats;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -22,9 +22,9 @@ import com.ibm.mq.constants.MQConstants;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tags;
-import maersk.com.mq.metrics.accounting.AccountingEntity;
-import maersk.com.mq.metrics.mqmetrics.MQMonitorBase;
-import maersk.com.mq.metrics.mqmetrics.MQPCFConstants;
+import maersk.com.mq.monitor.accounting.AccountingEntity;
+import maersk.com.mq.monitor.mqmetrics.MQMonitorBase;
+import maersk.com.mq.monitor.mqmetrics.MQPCFConstants;
 
 @Component
 public class MQAccountingStats {
@@ -45,6 +45,8 @@ public class MQAccountingStats {
 
     private Map<String,AtomicLong>putMaxMap = new HashMap<String,AtomicLong>();
     private Map<String,AtomicLong>getMaxMap = new HashMap<String,AtomicLong>();
+    private Map<String,AtomicLong>putFailMap = new HashMap<String,AtomicLong>();
+    private Map<String,AtomicLong>getFailMap = new HashMap<String,AtomicLong>();
 
     protected static final String hour = "mq:hour";
     protected static final String day = "mq:day";
@@ -66,6 +68,8 @@ public class MQAccountingStats {
 	protected static final String lookupMaxPutMsgSize = "mq:queueMaxPutMsgSize";
 	protected static final String lookupMaxGetMsgSize = "mq:queueMaxGetMsgSize";
 
+	protected static final String lookupPutFail = "mq:put_fails";
+	protected static final String lookupGetFail = "mq:get_fails";
 
     private String queueManagerName;
 	public void setQueueManagerName(String v) {
@@ -173,6 +177,14 @@ public class MQAccountingStats {
 				if (ae.getValues()[MQConstants.MQPER_PERSISTENT] > 0) {
 					getMaxBytes(ae, cal, MQConstants.MQPER_PERSISTENT);
 				}				
+				break;
+
+			case MQConstants.MQIAMO_GETS_FAILED:
+				getsFailures(ae, cal);
+				break;
+				
+			case MQConstants.MQIAMO_PUTS_FAILED:
+				putsFailures(ae, cal);	
 				break;
 				
 			default:
@@ -481,6 +493,50 @@ public class MQAccountingStats {
 				getMax.set(ae.getValues()[per]);
 			}
 		}			
+	}
+
+	/*
+	 * Put fails
+	 */
+	private void putsFailures(AccountingEntity ae, Calendar cal) {
+
+		AtomicLong putFail = putFailMap.get(lookupPutFail + "_" + ae.getQueueName());
+		if (putFail == null) {
+			getMaxMap.put(lookupPutFail + "_" + ae.getQueueName(), base.meterRegistry.gauge(lookupPutFail, 
+					Tags.of("queueManagerName", ae.getQueueManagerName(),
+							"queueName", ae.getQueueName()							),
+					new AtomicLong(ae.getValues()[0]))
+					);
+		} else {
+			long v = putFail.get();
+			if (ae.getValues()[0] > v) {		
+				putFail.set(ae.getValues()[0]);
+			}
+		}			
+	}
+	
+	/*
+	 * Get fails 
+	 * 
+	 * Value are set in [0] of the int array, just so I dont have to have another parameter
+	 * ... [1] is not used for single integer values
+	 */
+	private void getsFailures(AccountingEntity ae, Calendar cal) {
+
+		AtomicLong getFail = getFailMap.get(lookupGetFail + "_" + ae.getQueueName());
+		if (getFail == null) {
+			getMaxMap.put(lookupGetFail + "_" + ae.getQueueName(), base.meterRegistry.gauge(lookupGetFail, 
+					Tags.of("queueManagerName", ae.getQueueManagerName(),
+							"queueName", ae.getQueueName()							),
+					new AtomicLong(ae.getValues()[0]))
+					);
+		} else {
+			long v = getFail.get();
+			if (ae.getValues()[0] > v) {		
+				getFail.set(ae.getValues()[0]);
+			}
+		}			
+		
 	}
 	
 	/*

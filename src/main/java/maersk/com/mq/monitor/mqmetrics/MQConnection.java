@@ -1,4 +1,4 @@
-package maersk.com.mq.metrics.mqmetrics;
+package maersk.com.mq.monitor.mqmetrics;
 
 /*
  * Copyright 2019
@@ -36,8 +36,9 @@ import com.ibm.mq.headers.pcf.PCFMessageAgent;
 import io.micrometer.core.instrument.Tags;
 
 import com.ibm.mq.headers.pcf.PCFException;
-import maersk.com.mq.metrics.accounting.*;
-import maersk.com.mq.metrics.stats.*;
+
+import maersk.com.mq.monitor.accounting.*;
+import maersk.com.mq.monitor.stats.*;
 import maersk.com.mq.json.controller.JSONController;
 
 @Component
@@ -109,6 +110,17 @@ public class MQConnection {
     private void setMessageAgent(PCFMessageAgent v) {
     	this.messageAgent = v;
     }
+
+    private long numberOfMessagesProcessed;
+    public long getNumberOfMessagesProcessed() {
+    	return this.numberOfMessagesProcessed;
+    }
+    public void incrementNumberOfMessagesProcessed(long v) {
+    	this.numberOfMessagesProcessed = v;
+    }
+    public void incrementNumberOfMessagesProcessed() {
+    	this.numberOfMessagesProcessed++;
+    }
     
 	@Autowired
 	private MQQueueManagerStats qmStats;
@@ -136,7 +148,7 @@ public class MQConnection {
     public JSONController JSONController() {
     	return new JSONController();
     }
-
+    
     // Constructor
 	public MQConnection() {
 	}
@@ -158,6 +170,9 @@ public class MQConnection {
 			getQMStatsObject().setRunMode(MQPCFConstants.MODE_CLIENT);
 			getQMStatsObject().setVersion();
 		}
+		
+		incrementNumberOfMessagesProcessed(0);
+		
 	}
 	
 	/*
@@ -264,12 +279,12 @@ public class MQConnection {
 		getMQMetricQueueManager().setQueueManager(getQueueManagerName());
 		getQMStatsObject().setQueueManagerName(getQueueManagerName());
 		
-		getMQMetricQueueManager().getQueueManagerMonitoringValues();		
+		//getMQMetricQueueManager().getQueueManagerMonitoringValues();		
 		getMQMetricQueueManager().calculateStartEndDates();
 		
 		getMQMetricQueueManager().setQueue(null);		
 		getMQMetricQueueManager().openQueueForReading();
-		getQMStatsObject().QueueManagerStatus(getMQMetricQueueManager().getQueueManagerStatus());
+		//getQMStatsObject().queueManagerStatus(getMQMetricQueueManager().getQueueManagerStatus());
 
 	}
 		
@@ -289,6 +304,9 @@ public class MQConnection {
 	public void getMetrics() throws PCFException, MQException, 
 			IOException, MQDataException, ParseException {
 		
+		getMQMetricQueueManager().getQueueManagerMonitoringValues();		
+		getQMStatsObject().queueManagerStatus(getMQMetricQueueManager().getQueueManagerStatus());
+
 		processAccountingMetrics();
 		
 	}
@@ -302,8 +320,8 @@ public class MQConnection {
 		List<AccountingEntity> list = getMQMetricQueueManager().readAccountData();		
 		if (!list.isEmpty()) {
 			for (AccountingEntity ae : list) {
-				int type = ae.getType();
 				getAccountingStats().createMetric(ae);				
+				incrementNumberOfMessagesProcessed();
 			}
 		}
 	}

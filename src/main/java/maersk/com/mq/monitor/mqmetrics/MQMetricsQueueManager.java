@@ -1,4 +1,4 @@
-package maersk.com.mq.metrics.mqmetrics;
+package maersk.com.mq.monitor.mqmetrics;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -37,6 +37,7 @@ import com.ibm.mq.headers.MQDataException;
 import com.ibm.mq.headers.pcf.MQCFGR;
 import com.ibm.mq.headers.pcf.MQCFH;
 import com.ibm.mq.headers.pcf.MQCFIL;
+import com.ibm.mq.headers.pcf.MQCFIN;
 import com.ibm.mq.headers.pcf.MQCFST;
 import com.ibm.mq.headers.pcf.PCFException;
 import com.ibm.mq.headers.pcf.PCFMessage;
@@ -45,8 +46,7 @@ import com.ibm.mq.headers.pcf.PCFParameter;
 
 import io.micrometer.core.instrument.Meter;
 import io.micrometer.core.instrument.Tags;
-//import maersk.com.mq.metrics.mqmetrics.MQBase.MQPCFConstants;
-import maersk.com.mq.metrics.accounting.AccountingEntity;
+import maersk.com.mq.monitor.accounting.AccountingEntity;
 
 @Component
 public class MQMetricsQueueManager<T> {
@@ -97,14 +97,14 @@ public class MQMetricsQueueManager<T> {
 	}
 	public int getPort() { return this.port; }
 
-	@Value("${ibm.mq.user}")
+	@Value("${ibm.mq.user:#{null}}")
 	private String userId;
 	public void setUserId(String v) {
 		this.userId = v;
 	}
 	public String getUserId() { return this.userId; }
 
-	@Value("${ibm.mq.password}")
+	@Value("${ibm.mq.password:#{null}}")
 	private String password;
 	public void setPassword(String v) {
 		this.password = v;
@@ -227,7 +227,33 @@ public class MQMetricsQueueManager<T> {
 		return this.statType;
 	}
 
-	private long numberOfMessagesProcessed;
+	/*
+	 * Accounting saved value
+	 */
+	private int savedQAcct;
+    public int getSavedQAcct() {
+		return savedQAcct;
+    }
+	public void setSavedQAcct(int value) {
+		this.savedQAcct = value;
+	}
+	/*
+	 * Statistics saved value
+	 */
+	private int savedQStat;
+    public int getSavedQStat() {
+		return savedQStat;
+    }
+	public void setSavedQStat(int value) {
+		this.savedQStat = value;
+	}
+	private boolean qAcct;
+	public void setQAcct(boolean v) {
+		this.qAcct = v;
+	}
+	public boolean getQAcct() {
+		return qAcct;
+	}
 	
 	/*
 	 * Validate connection name and userID
@@ -332,7 +358,8 @@ public class MQMetricsQueueManager<T> {
 			for (String w: getPCFParameters()) {
 				final int x = MQConstants.getIntValue(w);
 				if ((x != MQConstants.MQIAMO_PUT_MAX_BYTES) && (x != MQConstants.MQIAMO_GET_MAX_BYTES)
-						&& (x != MQConstants.MQIAMO_PUTS) && (x != MQConstants.MQIAMO_GETS)) {
+						&& (x != MQConstants.MQIAMO_PUTS) && (x != MQConstants.MQIAMO_GETS)
+						&& (x != MQConstants.MQIAMO_PUTS_FAILED) && (x != MQConstants.MQIAMO_GETS_FAILED)) {
 					log.fatal("Invalid PCF parameter : " + MQConstants.lookup(x, null));
 					System.exit(2);
 				}
@@ -364,9 +391,9 @@ public class MQMetricsQueueManager<T> {
 					log.warn("Set ibm.mq.pcf.accountingType to MQCFT_ACCOUNTING to collect MAX PUT or MAX GET values ");
 				}
 			}
-		} 
-		this.numberOfMessagesProcessed = 0;
+		} 	
 		
+		setQAcct(true);
 	}
 		
 	/*
@@ -537,6 +564,11 @@ public class MQMetricsQueueManager<T> {
 			
 		}
 
+		// if no user, forget it ...
+		if (getUserId() == null) {
+			return;
+		}
+		
 		/*
 		 * If we dont have a user or a certs are not being used, then we cant connect ... unless we are in local bindings
 		 */
@@ -545,11 +577,6 @@ public class MQMetricsQueueManager<T> {
 				log.error("Unable to connect to queue manager, credentials are missing and certificates are not being used");
 				System.exit(MQPCFConstants.EXIT_ERROR);
 			}
-		}
-
-		// if no user, forget it ...
-		if (this.userId == null) {
-			return;
 		}
 
 		/*
@@ -590,14 +617,31 @@ public class MQMetricsQueueManager<T> {
 		 *  Save the statistics status
 		 */
 		int stats = response.getIntParameterValue(MQConstants.MQIA_STATISTICS_Q);
-		setQueueManagerStatistics(stats);
+		//setQueueManagerStatistics(stats);
+		if (getSavedQStat() != response.getIntParameterValue(MQConstants.MQIA_STATISTICS_Q)) {
+			setQueueManagerStatistics(stats);
+			setSavedQStat(stats);
+			setQAcct(true);			
+		}
 		
 		/*
 		 *  Save the accounting status
 		 */
 		int qAcctValue = response.getIntParameterValue(MQConstants.MQIA_ACCOUNTING_Q);
-		setAccounting(qAcctValue);
+		if (getSavedQAcct() != response.getIntParameterValue(MQConstants.MQIA_ACCOUNTING_Q)) {
+			setAccounting(qAcctValue);
+			setSavedQAcct(qAcctValue);
+			setQAcct(true);
+		}
 
+		if (getQAcct()) {
+			String s = getAccountingStatus(qAcctValue);
+			log.info("Queue manager accounting is set to " + s);
+			s = getAccountingStatus(stats);			
+			log.info("Queue manager statistics is set to " + s);			
+			setQAcct(false);
+		}
+		
 		/*
 		 *  Send a queue manager status request
 		 */
@@ -731,45 +775,6 @@ public class MQMetricsQueueManager<T> {
 		if (getSearchPCF().length == 0) {
 			return stats;
 		}
-
-		/*
-		 * Accounting ...
-		 * ... Only check the queue managers accounting status, as we want ALL queues
-		 * 
-		 */
-		if (getStatType() == MQConstants.MQCFT_ACCOUNTING) {
-			if (getAccounting() == MQConstants.MQMON_NONE) {
-				if (base.getDebugLevel() > MQPCFConstants.DEBUG) {
-					log.debug("Queue Manager queue accounting is set to NONE");
-				}
-				return stats;
-			}
-			if (getAccounting() == MQConstants.MQMON_OFF) {
-				if (base.getDebugLevel() > MQPCFConstants.DEBUG) {
-					log.debug("Queue Manager accounting is set to OFF");
-				}
-				return stats;
-			}
-		}
-		
-		/*
-		 * Statistics ...
-		 * ....
-		 */
-		if (getStatType() == MQConstants.MQCFT_STATISTICS) {
-			if (getQueueManagerStatistics() == MQConstants.MQMON_NONE) {
-				if (base.getDebugLevel() > MQPCFConstants.DEBUG) {
-					log.debug("Queue Manager statistics is set to NONE");
-				}
-				return stats;
-			}
-			if (getQueueManagerStatistics() == MQConstants.MQMON_OFF) {
-				if (base.getDebugLevel() > MQPCFConstants.DEBUG) {
-					log.debug("Queue Manager statistics is set to OFF");
-				}
-				return stats;
-			}
-		}
 		
 		/*
 		 * Queue Manager should be on or the queue on ...
@@ -782,191 +787,244 @@ public class MQMetricsQueueManager<T> {
 		
 		try {
 							
-			String pcfQueueName = "";
-			int[] pcfArrayValue = {0};
-			
+			String pcfQueueName = "";			
 			MQMessage message = new MQMessage ();
 			while (true) {
 			
 				message.messageId = MQConstants.MQMI_NONE;
 				message.correlationId = MQConstants.MQMI_NONE;
 				getQueue().get (message, getGMO());
-				PCFMessage pcf = new PCFMessage (message);
-
-				/*
-				 * Only do STATS or Accounting 
-				 */
-				if ((pcf.getCommand() == MQConstants.MQCMD_STATISTICS_Q) || (pcf.getCommand() == MQConstants.MQCMD_ACCOUNTING_Q)) {
-
-					int cont = pcf.getControl();
-					Enumeration<PCFParameter> parms = pcf.getParameters();					
-					String startDate = pcf.getStringParameterValue(MQConstants.MQCAMO_START_DATE).trim();
-					String startTime = pcf.getStringParameterValue(MQConstants.MQCAMO_START_TIME).trim();
-					Date d1 = null;
-					Date d2 = null;
-					try {
-						d1 = dateFormat.parse(startDate + " " + startTime);
-					
-					} catch (ParseException e) {
-						// carry on
-					}
-	
-					String endDate = pcf.getStringParameterValue(MQConstants.MQCAMO_END_DATE).trim();
-					String endTime = pcf.getStringParameterValue(MQConstants.MQCAMO_END_TIME).trim();
-					try {
-						d2 = dateFormat.parse(endDate + " " + endTime);
-					
-					} catch (ParseException e) {
-						// carry on
-					}
-					if (getStartDateObject().before(d1) && getEndDateObject().after(d2)) {
-						if (base.getDebugLevel() >= MQPCFConstants.DEBUG) {
-							log.debug("Record found ... control : " + cont);
-						}
-						msgPCFRecords: while (parms.hasMoreElements()) {
-							PCFParameter pcfParams = parms.nextElement();
-						
-							switch (pcfParams.getParameter()) {
-		
-								default:
-									switch (pcfParams.getType()) {
-										case(MQConstants.MQCFT_GROUP):
-											MQCFGR grp = (MQCFGR)pcfParams; // PCF Group record
-											Enumeration<PCFParameter> gparms = grp.getParameters();
-											
-											grpRecords: while (gparms.hasMoreElements()) {
-												PCFParameter grpPCFParams = gparms.nextElement();
-												
-												switch (grpPCFParams.getParameter()) {
-													case (MQConstants.MQCA_Q_NAME):
-														pcfQueueName = grpPCFParams.getStringValue().trim();
-														if (!checkQueueNames(pcfQueueName)) {
-															if (base.getDebugLevel() >= MQPCFConstants.DEBUG) {
-																log.debug("Filters excluded records for " + pcfQueueName);
-															}
-															break grpRecords;
-														}
-														break; // get next group record
-		
-													case (MQConstants.MQIAMO_GETS):
-														if (Arrays.binarySearch(getSearchPCF(), MQConstants.MQIAMO_GETS) >= 0) {
-															MQCFIL max = (MQCFIL) grpPCFParams;
-															pcfArrayValue = max.getValues();
-															if ((pcfArrayValue[MQConstants.MQPER_NOT_PERSISTENT] > 0) 
-																	|| (pcfArrayValue[MQConstants.MQPER_PERSISTENT] > 0)) {
-	
-																if (pcfQueueName != "") {
-																	
-																	AccountingEntity ae = createEntity(MQConstants.MQIAMO_GETS, pcfQueueName, pcfArrayValue,
-																			startDate, startTime, endDate, endTime);
-																	this.numberOfMessagesProcessed++;
-																	
-																	stats.add(ae);
-																	if (base.getDebugLevel() >= MQPCFConstants.DEBUG) {
-																		log.debug("GETS: " + pcfQueueName + " { " 
-																				+ pcfArrayValue[MQConstants.MQPER_NOT_PERSISTENT] + ", " + pcfArrayValue[MQConstants.MQPER_PERSISTENT] + " } ");
-																	}
-																}														
-															}
-														}
-														break;
-		
-													case (MQConstants.MQIAMO_PUTS):
-														if (Arrays.binarySearch(getSearchPCF(), MQConstants.MQIAMO_PUTS) >= 0) {
-															MQCFIL max = (MQCFIL) grpPCFParams;
-															pcfArrayValue = max.getValues();
-															if ((pcfArrayValue[MQConstants.MQPER_NOT_PERSISTENT] > 0) 
-																	|| (pcfArrayValue[MQConstants.MQPER_PERSISTENT] > 0)) {
-	
-																if (pcfQueueName != "") {
-
-																	AccountingEntity ae = createEntity(MQConstants.MQIAMO_PUTS, pcfQueueName, pcfArrayValue,
-																			startDate, startTime, endDate, endTime);
-																	this.numberOfMessagesProcessed++;
-		
-																	stats.add(ae);
-																	if (base.getDebugLevel() >= MQPCFConstants.DEBUG) {
-																		log.debug("PUTS: " + pcfQueueName + " { " 
-																				+ pcfArrayValue[MQConstants.MQPER_NOT_PERSISTENT] + ", " + pcfArrayValue[MQConstants.MQPER_PERSISTENT] + " } ");
-		
-																	}
-																}														
-															}
-														}
-														break;
-													
-													case (MQConstants.MQIAMO_PUT_MAX_BYTES):
-														if (Arrays.binarySearch(getSearchPCF(), MQConstants.MQIAMO_PUT_MAX_BYTES) >= 0) {
-															MQCFIL max = (MQCFIL) grpPCFParams;
-															pcfArrayValue = max.getValues();
-															if ((pcfArrayValue[MQConstants.MQPER_NOT_PERSISTENT] > 0) 
-																	|| (pcfArrayValue[MQConstants.MQPER_PERSISTENT] > 0)) {
-	
-																if (pcfQueueName != "") {
-
-																	AccountingEntity ae = createEntity(MQConstants.MQIAMO_PUT_MAX_BYTES, pcfQueueName, pcfArrayValue,
-																			startDate, startTime, endDate, endTime);
-																	this.numberOfMessagesProcessed++;
-		
-																	stats.add(ae);
-																	if (base.getDebugLevel() >= MQPCFConstants.DEBUG) {
-																		log.debug("PUTS MAX: " + pcfQueueName + " { " 
-																				+ pcfArrayValue[MQConstants.MQPER_NOT_PERSISTENT] + ", " + pcfArrayValue[MQConstants.MQPER_PERSISTENT] + " } ");
-		
-																	}
-																}
-															}
-														}											
-														break;
-		
-													case (MQConstants.MQIAMO_GET_MAX_BYTES):
-														if (Arrays.binarySearch(getSearchPCF(), MQConstants.MQIAMO_GET_MAX_BYTES) >= 0) {							
-															MQCFIL max = (MQCFIL) grpPCFParams;
-															pcfArrayValue = max.getValues();
-															if ((pcfArrayValue[MQConstants.MQPER_NOT_PERSISTENT] > 0) 
-																	|| (pcfArrayValue[MQConstants.MQPER_PERSISTENT] > 0)) {
-	
-																if (pcfQueueName != "") {
-			
-																	AccountingEntity ae = createEntity(MQConstants.MQIAMO_GET_MAX_BYTES, pcfQueueName, pcfArrayValue,
-																			startDate, startTime, endDate, endTime);
-																	this.numberOfMessagesProcessed++;
-		
-																	stats.add(ae);
-																	if (base.getDebugLevel() >= MQPCFConstants.DEBUG) {
-																		log.debug("GETS MAX: " + pcfQueueName + " { " 
-																			+ pcfArrayValue[MQConstants.MQPER_NOT_PERSISTENT] + ", " + pcfArrayValue[MQConstants.MQPER_PERSISTENT] + " } ");
-		
-																	}
-																}
-															}
-															break msgPCFRecords; // break from the loop, as we dont want to continue processing any more
-																				 // if we want 'browse stats', move the 'break msgPCFRecords' to the end
-														}
-													
-														break;
-														
-													default:
-														break;
-												} // end of switch
-											} // end of loop 'a'
-											
-									        break;
-									}
-									break;
-							}
-						} // end of inner loop		        
-					}
-					
-				//	deleteMessagesUnderCursor(pcfQueueName);
 				
-				} // end of date check
+				/*
+				 * Only process ADMIN messages ...
+				 */
+				//if (message.format.equals(MQConstants.MQFMT_ADMIN)) {
+					PCFMessage pcf = new PCFMessage (message);
+					/*
+					 * Accounting or Stats ?
+					 */
+					if ((pcf.getCommand() == MQConstants.MQCMD_STATISTICS_Q) || (pcf.getCommand() == MQConstants.MQCMD_ACCOUNTING_Q)) {						
 
-				deleteMessagesUnderCursor();
+						int cont = pcf.getControl();
+						Enumeration<PCFParameter> parms = pcf.getParameters();					
+						String startDate = pcf.getStringParameterValue(MQConstants.MQCAMO_START_DATE).trim();
+						String startTime = pcf.getStringParameterValue(MQConstants.MQCAMO_START_TIME).trim();
+						Date d1 = null;
+						Date d2 = null;
+						try {
+							d1 = dateFormat.parse(startDate + " " + startTime);
+						
+						} catch (ParseException e) {
+							// carry on
+						}
 
-				getGMO().options = MQConstants.MQGMO_BROWSE_NEXT | 
-						MQConstants.MQGMO_NO_WAIT | 
-						MQConstants.MQGMO_CONVERT;
+						String endDate = pcf.getStringParameterValue(MQConstants.MQCAMO_END_DATE).trim();
+						String endTime = pcf.getStringParameterValue(MQConstants.MQCAMO_END_TIME).trim();
+						try {
+							d2 = dateFormat.parse(endDate + " " + endTime);
+						
+						} catch (ParseException e) {
+							// carry on
+						}
+						if (getStartDateObject().before(d1) && getEndDateObject().after(d2)) {
+							if (base.getDebugLevel() >= MQPCFConstants.DEBUG) {
+								log.debug("Record found within date range ... control : " + cont);
+							}
+							msgPCFRecords: while (parms.hasMoreElements()) {
+								PCFParameter pcfParams = parms.nextElement();
+							
+								switch (pcfParams.getParameter()) {
+
+									default:
+										switch (pcfParams.getType()) {
+											case(MQConstants.MQCFT_GROUP):
+												MQCFGR grp = (MQCFGR)pcfParams; // PCF Group record
+												Enumeration<PCFParameter> gparms = grp.getParameters();
+												
+												grpRecords: while (gparms.hasMoreElements()) {
+													PCFParameter grpPCFParams = gparms.nextElement();
+													
+													switch (grpPCFParams.getParameter()) {
+														case (MQConstants.MQCA_Q_NAME):
+															pcfQueueName = grpPCFParams.getStringValue().trim();
+															if (!checkQueueNames(pcfQueueName)) {
+																if (base.getDebugLevel() >= MQPCFConstants.DEBUG) {
+																	log.debug("Filters excluded records for " + pcfQueueName);
+																}
+																break grpRecords;
+															}
+															break; // get next group record
+
+														case (MQConstants.MQIAMO_GETS):
+															if (Arrays.binarySearch(getSearchPCF(), MQConstants.MQIAMO_GETS) >= 0) {
+																MQCFIL max = (MQCFIL) grpPCFParams;
+																final int[] pcfArrayValue = max.getValues();
+																if ((pcfArrayValue[MQConstants.MQPER_NOT_PERSISTENT] > 0) 
+																		|| (pcfArrayValue[MQConstants.MQPER_PERSISTENT] > 0)) {
+
+																	if (pcfQueueName != "") {
+																		
+																		AccountingEntity ae = createEntity(MQConstants.MQIAMO_GETS, 
+																				pcfQueueName, pcfArrayValue,
+																				startDate, startTime, endDate, endTime);
+																		stats.add(ae);
+																		
+																		if (base.getDebugLevel() >= MQPCFConstants.DEBUG) {
+																			log.debug("GETS: " + pcfQueueName + " { " 
+																					+ pcfArrayValue[MQConstants.MQPER_NOT_PERSISTENT] + ", " + pcfArrayValue[MQConstants.MQPER_PERSISTENT] + " } ");
+																		}
+																	}														
+																}
+															}
+															break;
+
+														case (MQConstants.MQIAMO_PUTS):
+															if (Arrays.binarySearch(getSearchPCF(), MQConstants.MQIAMO_PUTS) >= 0) {
+																MQCFIL max = (MQCFIL) grpPCFParams;
+																final int[] pcfArrayValue = max.getValues();
+																if ((pcfArrayValue[MQConstants.MQPER_NOT_PERSISTENT] > 0) 
+																		|| (pcfArrayValue[MQConstants.MQPER_PERSISTENT] > 0)) {
+
+																	if (pcfQueueName != "") {
+
+																		AccountingEntity ae = createEntity(MQConstants.MQIAMO_PUTS, 
+																				pcfQueueName, pcfArrayValue,
+																				startDate, startTime, endDate, endTime);
+																		stats.add(ae);
+
+																		if (base.getDebugLevel() >= MQPCFConstants.DEBUG) {
+																			log.debug("PUTS: " + pcfQueueName + " { " 
+																					+ pcfArrayValue[MQConstants.MQPER_NOT_PERSISTENT] + ", " + pcfArrayValue[MQConstants.MQPER_PERSISTENT] + " } ");
+
+																		}
+																	}														
+																}
+															}
+															break;
+														
+														case (MQConstants.MQIAMO_PUT_MAX_BYTES):
+															if (Arrays.binarySearch(getSearchPCF(), MQConstants.MQIAMO_PUT_MAX_BYTES) >= 0) {
+																MQCFIL max = (MQCFIL) grpPCFParams;
+																final int[] pcfArrayValue = max.getValues();
+																if ((pcfArrayValue[MQConstants.MQPER_NOT_PERSISTENT] > 0) 
+																		|| (pcfArrayValue[MQConstants.MQPER_PERSISTENT] > 0)) {
+
+																	if (pcfQueueName != "") {
+
+																		AccountingEntity ae = createEntity(MQConstants.MQIAMO_PUT_MAX_BYTES, pcfQueueName, pcfArrayValue,
+																				startDate, startTime, endDate, endTime);
+																		stats.add(ae);
+
+																		if (base.getDebugLevel() >= MQPCFConstants.DEBUG) {
+																			log.debug("PUTS MAX BYTES: " + pcfQueueName + " { " 
+																					+ pcfArrayValue[MQConstants.MQPER_NOT_PERSISTENT] + ", " + pcfArrayValue[MQConstants.MQPER_PERSISTENT] + " } ");
+
+																		}
+																	}
+																}
+															}											
+															break;
+
+														case (MQConstants.MQIAMO_GET_MAX_BYTES):
+															if (Arrays.binarySearch(getSearchPCF(), MQConstants.MQIAMO_GET_MAX_BYTES) >= 0) {							
+																MQCFIL max = (MQCFIL) grpPCFParams;
+																final int[] pcfArrayValue = max.getValues();
+																if ((pcfArrayValue[MQConstants.MQPER_NOT_PERSISTENT] > 0) 
+																		|| (pcfArrayValue[MQConstants.MQPER_PERSISTENT] > 0)) {
+
+																	if (pcfQueueName != "") {
+
+																		AccountingEntity ae = createEntity(MQConstants.MQIAMO_GET_MAX_BYTES, 
+																				pcfQueueName, pcfArrayValue,
+																				startDate, startTime, endDate, endTime);
+																		stats.add(ae);
+
+																		if (base.getDebugLevel() >= MQPCFConstants.DEBUG) {
+																			log.debug("GETS MAX BYTES: " + pcfQueueName + " { " 
+																				+ pcfArrayValue[MQConstants.MQPER_NOT_PERSISTENT] + ", " + pcfArrayValue[MQConstants.MQPER_PERSISTENT] + " } ");
+
+																		}
+																	}
+																}
+																break;  // break from the loop, as we dont want to continue processing any more
+														    			 // if we want 'browse stats', move the 'break msgPCFRecords' to the end
+															}										
+															break;
+
+															
+														case (MQConstants.MQIAMO_GETS_FAILED):
+															if (Arrays.binarySearch(getSearchPCF(), MQConstants.MQIAMO_GETS_FAILED) >= 0) {							
+																MQCFIN max = (MQCFIN) grpPCFParams;
+																final int[] pcfArrayValue = {max.getIntValue(),0};
+																if (pcfArrayValue[MQConstants.MQPER_NOT_PERSISTENT] > 0) {
+																	
+																	if (pcfQueueName != "") {
+
+																		AccountingEntity ae = createEntity(MQConstants.MQIAMO_GETS_FAILED, 
+																				pcfQueueName, pcfArrayValue,
+																				startDate, startTime, endDate, endTime);
+																		stats.add(ae);
+
+																		if (base.getDebugLevel() >= MQPCFConstants.DEBUG) {
+																			log.debug("GETS FAILS: " + pcfQueueName + " { " 
+																				+ pcfArrayValue[MQConstants.MQPER_NOT_PERSISTENT] + ", " + pcfArrayValue[MQConstants.MQPER_PERSISTENT] + " } ");
+
+																		}
+																	}
+																}
+																break;  // break from the loop, as we dont want to continue processing any more
+																					 // if we want 'browse stats', move the 'break msgPCFRecords' to the end
+															}										
+															break;
+															
+														case (MQConstants.MQIAMO_PUTS_FAILED):
+															if (Arrays.binarySearch(getSearchPCF(), MQConstants.MQIAMO_PUTS_FAILED) >= 0) {							
+																MQCFIN max = (MQCFIN) grpPCFParams;
+																final int[] pcfArrayValue = {max.getIntValue(),0};
+																if (pcfArrayValue[MQConstants.MQPER_NOT_PERSISTENT] > 0) {
+	
+																	if (pcfQueueName != "") {
+
+																		AccountingEntity ae = createEntity(MQConstants.MQIAMO_PUTS_FAILED, 
+																				pcfQueueName, pcfArrayValue,
+																				startDate, startTime, endDate, endTime);
+																		stats.add(ae);
+
+																		if (base.getDebugLevel() >= MQPCFConstants.DEBUG) {
+																			log.debug("PUTS FAILS: " + pcfQueueName + " { " 
+																				+ pcfArrayValue[MQConstants.MQPER_NOT_PERSISTENT] + ", " + pcfArrayValue[MQConstants.MQPER_PERSISTENT] + " } ");
+
+																		}
+																	}
+																}
+																break;	 // msgPCFRecords; break from the loop, as we dont want to continue processing any more
+																					 // if we want 'browse stats', move the 'break msgPCFRecords' to the end
+															}										
+															break;
+															
+														default:
+															break;
+															
+													} // end of switch
+													
+												} // end of loop
+										        break;
+										}
+										break;
+								}
+							} // end of inner loop		        
+						}
+					} 	
+					deleteMessagesUnderCursor();
+					
+					/*
+					 * Reset options incase we deleted the message in the deleteMessageUnderCursor method
+					 */
+					getGMO().options = MQConstants.MQGMO_BROWSE_NEXT | 
+							MQConstants.MQGMO_NO_WAIT | 
+							MQConstants.MQGMO_CONVERT;
+				
+				//}
 
 			} // end of loop
 
@@ -983,7 +1041,7 @@ public class MQMetricsQueueManager<T> {
 		
 		return stats;
 	}
-	
+		
 	/*
 	 * Create accounting entity
 	 */
@@ -1003,6 +1061,7 @@ public class MQMetricsQueueManager<T> {
 		
 		return ae;
 	}
+	
 	/*
 	 * Delete message
 	 */
@@ -1092,6 +1151,28 @@ public class MQMetricsQueueManager<T> {
 			}
 		}
 		
+	}
+	
+	/*
+	 * Whats the accounting type set to ?
+	 */
+	private String getAccountingStatus(int v) {
+		String s = "";
+		switch (v) {
+			case MQConstants.MQMON_NONE:
+				s = "NONE";
+				break;
+			case MQConstants.MQMON_OFF:
+				s = "OFF";
+				break;
+			case MQConstants.MQMON_ON:
+				s = "ON";
+				break;
+			default:
+				s = "OFF";
+				break;	
+		}
+		return s;
 	}
 	
 	/*

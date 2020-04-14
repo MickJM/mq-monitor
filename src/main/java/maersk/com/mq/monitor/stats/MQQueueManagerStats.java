@@ -1,4 +1,4 @@
-package maersk.com.mq.metrics.stats;
+package maersk.com.mq.monitor.stats;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,8 +11,8 @@ import com.ibm.mq.constants.MQConstants;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tags;
-import maersk.com.mq.metrics.mqmetrics.MQMonitorBase;
-import maersk.com.mq.metrics.mqmetrics.MQPCFConstants;
+import maersk.com.mq.monitor.mqmetrics.MQMonitorBase;
+import maersk.com.mq.monitor.mqmetrics.MQPCFConstants;
 
 @Component
 public class MQQueueManagerStats {
@@ -78,10 +78,10 @@ public class MQQueueManagerStats {
 			val = MQConstants.MQQMSTA_QUIESCING;
 		} 
 	
-		QueueManagerStatus(val);
+		queueManagerStatus(val);
 	}
 	
-	public void QueueManagerStatus(int v) {
+	public void queueManagerStatus(int v) {
 		
 		AtomicInteger value = queueManagerStatusMap.get(queueManagerStatus + "_" + getQueueManagerName());
 		if (value == null) {

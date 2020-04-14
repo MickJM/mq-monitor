@@ -13,16 +13,14 @@ spring:
 ibm:
   mq:
     multiInstance: false
-    queueManager: QMAP01
+    queueManager: QMAP02
     channel: MQ.MONITOR.SVRCONN
-    connName: localhost(1480)
+    connName: localhost(1443)
     sslCipherSpec: TLS_RSA_WITH_AES_256_CBC_SHA256
     sslCipherSpec1: TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384
     useSSL: true
-    user1: MQMon01
-    password1: Passw0rd
-    user: 
-    password:    
+    user: MQMon01 
+    password: Passw0rd
     local: false
     keepMetricsWhenQueueManagerIsDown: false
     clearMetrics: 5
@@ -48,9 +46,9 @@ ibm:
     event:
       delayInMilliSeconds: 10000      
     security:
-      truststore: C:\ProgramData\IBM\MQ\qmgrs\QMAP01\ssl\qmap01jks.jks
+      truststore: C:\ProgramData\IBM\MQ\qmgrs\QMAP02\ssl\qmap02jks.jks
       truststore-password: Passw0rd
-      keystore: C:\ProgramData\IBM\MQ\qmgrs\QMAP01\ssl\qmap01jks.jks
+      keystore: C:\ProgramData\IBM\MQ\qmgrs\QMAP02\ssl\qmap02jks.jks
       keystore-password: Passw0rd
 management:
   endpoints:

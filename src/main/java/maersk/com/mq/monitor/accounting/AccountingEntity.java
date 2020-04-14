@@ -1,4 +1,4 @@
-package maersk.com.mq.metrics.accounting;
+package maersk.com.mq.monitor.accounting;
 
 /*
  * Accounting PCF entity

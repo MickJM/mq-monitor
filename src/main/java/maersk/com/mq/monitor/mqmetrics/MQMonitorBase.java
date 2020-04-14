@@ -1,4 +1,4 @@
-package maersk.com.mq.metrics.mqmetrics;
+package maersk.com.mq.monitor.mqmetrics;
 
 import java.util.Iterator;
 import java.util.List;
