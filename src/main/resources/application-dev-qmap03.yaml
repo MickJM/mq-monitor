@@ -1,6 +1,10 @@
+logging:
+  level:
+    org:
+      springframework: OFF
+    maersk:
+      com: DEBUG
 application:
-  debug: true
-  debugLevel: DEBUG
   save:
     metrics:
      required: false
@@ -13,17 +17,21 @@ spring:
 ibm:
   mq:
     multiInstance: false
-    queueManager: QMAP03
-    channel: MQ.MONITOR.SVRCONN
+    queueManager1: "*SMQQM01"
+    queueManager: QMAP03   
+    channel1: MQ.MONITOR.SVRCONN
+    channel: MQ.NONTLS.MONITOR    
     connName: localhost(1444)
     sslCipherSpec: TLS_RSA_WITH_AES_256_CBC_SHA256
     sslCipherSpec1: TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384
-    useSSL: false
-    user: MQMon01 
-    password: Passw0rd
+    useSSL: false         
+    user: MQmon01
+    password: Passw0rdPassw0rd1234
     local: false
     keepMetricsWhenQueueManagerIsDown: false
     clearMetrics: 5
+    ccdtFile:  
+    ccdtFile1: C:\ProgramData\IBM\MQ\qmgrs\QMAP03\@ipcc\AMQCLCHL.TAB
 # accounting / statistics, pcf values, browse true/false - false will delete records
     pcf:
       accountingType: MQCFT_STATISTICS
@@ -46,9 +54,9 @@ ibm:
     event:
       delayInMilliSeconds: 10000      
     security:
-      truststore: C:\ProgramData\IBM\MQ\qmgrs\QMAP02\ssl\qmap02jks.jks
+      truststore: C:\ProgramData\IBM\MQ\qmgrs\QMAP03\ssl\qmap03jks.jks
       truststore-password: Passw0rd
-      keystore: C:\ProgramData\IBM\MQ\qmgrs\QMAP02\ssl\qmap02jks.jks
+      keystore: C:\ProgramData\IBM\MQ\qmgrs\QMAP03\ssl\qmap03jks.jks
       keystore-password: Passw0rd
 management:
   endpoints:

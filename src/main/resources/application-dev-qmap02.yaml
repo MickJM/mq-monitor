@@ -1,6 +1,10 @@
+logging:
+  level:
+    org:
+      springframework: OFF
+    maersk:
+      com: DEBUG
 application:
-  debug: true
-  debugLevel: DEBUG
   save:
     metrics:
      required: false

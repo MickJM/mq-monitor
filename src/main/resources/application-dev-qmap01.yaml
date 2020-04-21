@@ -1,6 +1,10 @@
+logging:
+  level:
+    org:
+      springframework: OFF
+    maersk:
+      com: DEBUG
 application:
-  debug: true
-  debugLevel: DEBUG
   save:
     metrics:
      required: false
@@ -19,10 +23,8 @@ ibm:
     sslCipherSpec: TLS_RSA_WITH_AES_256_CBC_SHA256
     sslCipherSpec1: TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384
     useSSL: true
-    user1: MQMon01
-    password1: Passw0rd
-    user: 
-    password:    
+    user: MQmon01
+    password1: Passw0rdPassw0rd1234
     local: false
     keepMetricsWhenQueueManagerIsDown: false
     clearMetrics: 5
@@ -30,7 +32,7 @@ ibm:
     pcf:
       accountingType: MQCFT_STATISTICS
       parameters: MQIAMO_PUT_MAX_BYTES, MQIAMO_GET_MAX_BYTES, MQIAMO_PUTS, MQIAMO_GETS, MQIAMO_GETS_FAILED, MQIAMO_PUTS_FAILED
-      browse: true
+      browse: false
       period:
 # Collection time periods
          collections: HOURS, DAYS, WEEKS, MONTHS, YEARS

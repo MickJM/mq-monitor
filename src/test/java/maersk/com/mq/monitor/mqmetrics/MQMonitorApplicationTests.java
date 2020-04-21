@@ -12,7 +12,9 @@ import java.util.stream.Collectors;
 
 import javax.xml.namespace.QName;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +48,7 @@ import maersk.com.mq.monitor.mqmetrics.MQMetricsQueueManager;
 @Component
 public class MQMonitorApplicationTests {
 
-	static Logger log = Logger.getLogger(MQMonitorApplicationTests.class);
+	static Logger log = LoggerFactory.getLogger(MQMonitorApplicationTests.class);
 		
 	@Autowired
 	private MQMetricsQueueManager qman;

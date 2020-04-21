@@ -28,3 +28,5 @@
 *.json
 /FFDC/
 mqjms.*
+SSLNotes.*
+createKeystore.*

@@ -3,8 +3,8 @@ package maersk.com.mq.monitor.stats;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.ibm.mq.constants.MQConstants;
@@ -18,11 +18,14 @@ import maersk.com.mq.monitor.mqmetrics.MQPCFConstants;
 public class MQQueueManagerStats {
 
 	@Autowired
-	private MeterRegistry meterRegistry;
-
-	@Autowired
 	private MQMonitorBase base;
-	
+
+	@Value("${info.app.version:notset}")
+	private String versionNumeric;
+	public String getVersion() {
+		return this.versionNumeric;
+	}
+
 	private String queueManagerName;
 	public String getQueueManagerName() {
 		return this.queueManagerName;
@@ -57,10 +60,9 @@ public class MQQueueManagerStats {
 	 */
 	public void setVersion() {
 
-		String appVersion = "1.0.0.0";
+		String appVersion = getVersion();
 		String s = appVersion.replaceAll("[\\s.]", "");
 		int v = Integer.parseInt(s);		
-		AtomicInteger ver = versionMap.get(version);
 		versionMap.put(version, base.meterRegistry.gauge(version, 
 				new AtomicInteger(v)));		
 	}

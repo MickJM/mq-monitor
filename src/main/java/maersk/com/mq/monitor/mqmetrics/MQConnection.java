@@ -12,31 +12,26 @@ package maersk.com.mq.monitor.mqmetrics;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-import org.apache.log4j.Logger;
+//import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.ibm.mq.MQException;
 import com.ibm.mq.MQQueueManager;
-import com.ibm.mq.constants.MQConstants;
 import com.ibm.mq.headers.MQDataException;
 import com.ibm.mq.headers.pcf.PCFMessageAgent;
-
-import io.micrometer.core.instrument.Tags;
-
 import com.ibm.mq.headers.pcf.PCFException;
-
 import maersk.com.mq.monitor.accounting.*;
 import maersk.com.mq.monitor.stats.*;
 import maersk.com.mq.json.controller.JSONController;
@@ -44,14 +39,8 @@ import maersk.com.mq.json.controller.JSONController;
 @Component
 public class MQConnection {
 
-    static Logger log = Logger.getLogger(MQConnection.class);
+    private final static Logger log = LoggerFactory.getLogger(MQConnection.class);
 
-	@Value("${application.debug:false}")
-    protected boolean _debug;
-	
-	@Value("${application.debugLevel:NONE}")
-	protected String _debugLevel;
-    
 	@Value("${application.save.metrics.required:false}")
     private boolean summaryRequired;
 
@@ -66,7 +55,13 @@ public class MQConnection {
 	private String getQueueManagerName() {
 		return this.queueManager;
 	}
-		
+
+	@Value("${ibm.mq.user:#{null}}")
+	private String userID;
+	private String getUserId() {
+		return this.userID;
+	}
+
 	@Value("${ibm.mq.local:false}")
 	private boolean local;
 	public boolean isRunningLocal() {
@@ -156,7 +151,7 @@ public class MQConnection {
 	@PostConstruct
 	public void setProperties() throws MQException, MQDataException, IOException {
 		
-		if (!(base.getDebugLevel() == MQPCFConstants.NONE)) { log.info("MQConnection: Object created"); }
+		log.info("MQConnection: Object created");
 		
 		/*
 		 * Make a connection to the queue manager
@@ -199,53 +194,29 @@ public class MQConnection {
 			}
 			
 		} catch (PCFException p) {
-			if (base.getDebugLevel() == MQPCFConstants.WARN
-					|| base.getDebugLevel() == MQPCFConstants.TRACE 
-					|| base.getDebugLevel() == MQPCFConstants.ERROR
-					|| base.getDebugLevel() == MQPCFConstants.DEBUG) { 
-				log.error("PCFException " + p.getMessage());
-			}
-			if (base.getDebugLevel() == MQPCFConstants.WARN
-				|| base.getDebugLevel() == MQPCFConstants.TRACE 
-				|| base.getDebugLevel() == MQPCFConstants.ERROR
-				|| base.getDebugLevel() == MQPCFConstants.DEBUG) { 
-					log.warn("PCFException: ReasonCode " + p.getReason());
-			}
-			if (base.getDebugLevel() == MQPCFConstants.TRACE) { p.printStackTrace(); }
+			log.error("PCFException " + p.getMessage());
+			log.error("PCFException: ReasonCode " + p.getReason());
+			if (log.isTraceEnabled()) { p.printStackTrace(); }
 			closeQMConnection(p.getReason());
 			queueManagerIsNotRunning(p.getReason());
 			
 		} catch (MQException m) {
-			if (base.getDebugLevel() == MQPCFConstants.WARN
-					|| base.getDebugLevel() == MQPCFConstants.TRACE 
-					|| base.getDebugLevel() == MQPCFConstants.ERROR
-					|| base.getDebugLevel() == MQPCFConstants.DEBUG) { 
-				log.error("MQException " + m.getMessage());
-			}
-			if (base.getDebugLevel() == base.TRACE) { m.printStackTrace(); }
+			log.error("MQException " + m.getMessage());
+			log.error("MQException: ReasonCode " + m.getReason());
+			if (log.isTraceEnabled()) { m.printStackTrace(); }
 			closeQMConnection(m.getReason());
 			queueManagerIsNotRunning(m.getReason());
 	    	setMessageAgent(null);
 			
 		} catch (IOException i) {
-			if (base.getDebugLevel() == MQPCFConstants.WARN
-					|| base.getDebugLevel() == MQPCFConstants.TRACE 
-					|| base.getDebugLevel() == MQPCFConstants.ERROR
-					|| base.getDebugLevel() == MQPCFConstants.DEBUG) { 
-				log.error("IOException " + i.getMessage());
-			}
-			if (base.getDebugLevel() == MQPCFConstants.TRACE) { i.printStackTrace(); }
+			log.error("IOException " + i.getMessage());
+			if (log.isTraceEnabled()) { i.printStackTrace(); }
 			closeQMConnection();
 			queueManagerIsNotRunning(MQPCFConstants.PCF_INIT_VALUE);
 			
 		} catch (Exception e) {
-			if (base.getDebugLevel() == MQPCFConstants.WARN
-					|| base.getDebugLevel() == MQPCFConstants.TRACE 
-					|| base.getDebugLevel() == MQPCFConstants.ERROR
-					|| base.getDebugLevel() == MQPCFConstants.DEBUG) { 
-				log.error("Exception " + e.getMessage());
-			}
-			if (base.getDebugLevel() == MQPCFConstants.TRACE) { e.printStackTrace(); }
+			log.error("Exception " + e.getMessage());
+			if (log.isTraceEnabled()) { e.printStackTrace(); }
 			closeQMConnection();
 			queueManagerIsNotRunning(MQPCFConstants.PCF_INIT_VALUE);
 		}
@@ -257,7 +228,7 @@ public class MQConnection {
 	 */
 	private void connectToQueueManager() throws MQException, MQDataException, IOException {
 		
-		if (!(base.getDebugLevel() == MQPCFConstants.NONE)) { log.error("No MQ queue manager object"); }
+		log.error("No MQ queue manager object");
 		createQueueManagerConnection();
 	}
 	
@@ -272,6 +243,8 @@ public class MQConnection {
 	 * 
 	 */
 	public void createQueueManagerConnection() throws MQException, MQDataException, IOException {
+		
+		whichAuthentication();
 		
 		setMQQueueManager(getMQMetricQueueManager().createQueueManager());
 		setMessageAgent(getMQMetricQueueManager().createMessageAgent(getMQQueueManager()));
@@ -288,6 +261,22 @@ public class MQConnection {
 
 	}
 		
+	private void whichAuthentication() {
+		
+		if (getUserId() != null && (!getUserId().isEmpty())) {
+			if (usingSSL()) {
+				log.info("Authentication using TLS certificates");
+				
+			} else {
+				log.info("Authentication using username and password");
+				
+			}
+		} else {
+			log.info("Authentication using TLS certificates");
+			
+		}
+		
+	}
 	/*
 	 * When the queue manager isn't running, send back a status of inactive 
 	 */

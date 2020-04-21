@@ -2,22 +2,22 @@ package maersk.com.mq.monitor.stats;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-
 import javax.annotation.PostConstruct;
 
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
 import com.ibm.mq.constants.MQConstants;
 
 import io.micrometer.core.instrument.MeterRegistry;
@@ -29,11 +29,10 @@ import maersk.com.mq.monitor.mqmetrics.MQPCFConstants;
 @Component
 public class MQAccountingStats {
 
-    static Logger log = Logger.getLogger(MQAccountingStats.class);
-
-	@Autowired
-	private MeterRegistry meterRegistry;
-
+    //static Logger log = Logger.getLogger(MQAccountingStats.class);
+    //static Logger log = LogManager.getLogger(MQAccountingStats.class);
+    private final static Logger log = LoggerFactory.getLogger(MQAccountingStats.class);
+    		
 	@Autowired
 	private MQMonitorBase base;
 	 

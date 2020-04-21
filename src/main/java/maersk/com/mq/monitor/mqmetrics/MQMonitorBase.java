@@ -20,11 +20,11 @@ public class MQMonitorBase implements MQPCFConstants {
 	@Autowired
 	public MeterRegistry meterRegistry;
 
-	@Value("${application.debug:false}")
-    protected boolean _debug;
+	//@Value("${application.debug:false}")
+    //protected boolean _debug;
 	
-	@Value("${application.debugLevel:DEBUG}")
-	protected String _debugLevel;
+	//@Value("${application.debugLevel:DEBUG}")
+	//protected String _debugLevel;
 	
 	protected int lev;
 	
@@ -43,49 +43,6 @@ public class MQMonitorBase implements MQPCFConstants {
 	}
 	public synchronized int getCounter() {
 		return this.clearMetrics;
-	}
-
-	public int getDebugLevel() {
-		return this.lev;
-	}
-
-	@PostConstruct
-	private void setDebug() {
-
-		if (this._debug) {
-			if (this._debugLevel.equals("NONE")) {
-					this._debugLevel = "DEBUG";
-			}
-		}
-		if (!this._debug) {
-			this._debugLevel = "NONE";
-		}
-		
-		switch (this._debugLevel) {
-			case "NONE":
-				this.lev = NONE;
-				break;
-			case "INFO":
-				this.lev = INFO;
-				break;
-			case "DEBUG":
-				this.lev = DEBUG;
-				break;
-			case "WARN":
-				this.lev = WARN;
-				break;
-			case "ERROR":
-				this.lev = ERROR;
-				break;
-			case "TRACE":
-				this.lev = TRACE;
-				break;
-			
-			default:
-				this.lev = NONE;
-				break;
-		}
-		
 	}
 	
 	/*

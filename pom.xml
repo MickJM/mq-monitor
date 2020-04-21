@@ -5,7 +5,7 @@
 
 	<groupId>maersk.com.mq.metrics</groupId>
 	<artifactId>mq-monitor</artifactId>
-	<version>0.0.0.1</version>
+	<version>0.0.0.3</version>
 	<packaging>jar</packaging>
 	
 	<name>MQ Monitor</name>
@@ -23,6 +23,7 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
 		<log4j.version>1.2.17</log4j.version>
+		<mq.version>2.2.6</mq.version>		
 	</properties>
 
 	<dependencies>
@@ -51,18 +52,20 @@
 		<dependency>
 			<groupId>com.ibm.mq</groupId>
 			<artifactId>mq-jms-spring-boot-starter</artifactId>
-			<version>2.0.0</version>
+			<version>${mq.version}</version>
 		</dependency>
-
+		 		
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
+			  
 			<exclusions>
 				<exclusion>
 					<groupId>org.springframework.boot</groupId>
 					<artifactId>spring-boot-starter-logging</artifactId>
 				</exclusion>
 			</exclusions>
+			
 		</dependency>
 		
 		<dependency>
@@ -80,14 +83,28 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-
-		<!-- Log4j -->
+		
+		<!-- 
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-log4j2</artifactId>
+		</dependency>
+		-->
+		
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
 			<version>${log4j.version}</version>
 		</dependency>
 		
+		<!-- 
+		<dependency>
+		    <groupId>org.apache.logging.log4j</groupId>
+		    <artifactId>log4j-core</artifactId>
+		    <version>2.6.1</version>
+		</dependency>
+        -->
+        
 		<dependency>
     		<groupId>com.fasterxml.jackson.core</groupId>
     		<artifactId>jackson-databind</artifactId>

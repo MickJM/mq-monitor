@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.ComponentScan;
@@ -28,16 +28,15 @@ import io.micrometer.core.instrument.Timer;
 import io.micrometer.core.instrument.Meter.Id;
 
 import maersk.com.mq.json.entities.*;
-import maersk.com.mq.monitor.mqmetrics.MQMetricsQueueManager;
 import maersk.com.mq.monitor.mqmetrics.MQMonitorBase;
-import maersk.com.mq.monitor.mqmetrics.MQPCFConstants;
 
 @RestController
 @ComponentScan
-@RequestMapping(value="/json")
+//@RequestMapping(value="/json")
 public class JSONController  {
 
-	static Logger log = Logger.getLogger(JSONController.class);
+    //static Logger log = LogManager.getLogger(MQConnection.class);
+	static Logger log = LoggerFactory.getLogger(JSONController.class);
 
 	@Autowired
 	public MeterRegistry meterRegistry;
@@ -63,10 +62,10 @@ public class JSONController  {
 	/*
 	 * URI for ALL metrics
 	 */
-	@RequestMapping(method=RequestMethod.GET, value="/getallmetrics", produces={"application/json"})
+	@RequestMapping(method=RequestMethod.GET, value="/json/getallmetrics", produces={"application/json"})
 	public ResponseEntity<Object> allmetrics() {
 
-		if (base.getDebugLevel() == MQPCFConstants.DEBUG) { log.debug("REST JSON API invoked"); }
+		log.debug("REST JSON API invoked"); 
 		List<Object> entities = new ArrayList<Object>();		
 		List<Metric> metrics = new ArrayList<Metric>();
 		MetricType mt = new MetricType();
@@ -100,11 +99,10 @@ public class JSONController  {
 	/*
 	 * URI for mq metrics
 	 */
-	@RequestMapping(method=RequestMethod.GET, value="/getmqmetrics", produces={"application/json"})
+	@RequestMapping(method=RequestMethod.GET, value="/json/getmqmetrics", produces={"application/json"})
 	public ResponseEntity<Object> mqmetrics() {
 
-		if (base.getDebugLevel() == MQPCFConstants.DEBUG) { log.debug("REST MQ JSON API invoked"); }
-		
+		log.debug("REST MQ JSON API invoked"); 		
 		List<Object> entities = new ArrayList<Object>();
 		List<Metric> metrics = new ArrayList<Metric>();
 		MetricType mt = new MetricType();
@@ -154,6 +152,7 @@ public class JSONController  {
 		return new ResponseEntity<Object>(entities, HttpStatus.OK);
 
 	}
+	
 	
 	/*
 	 * Check the metric type
