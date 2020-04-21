@@ -754,6 +754,12 @@ public class MQMetricsQueueManager<T> {
 	 *                    When parameter is MQIAMO_GET_MAX_BYTES
 	 *                        create an AccountingEntity object
 	 *                        break
+	 *                    When parameter is MQIAMO_GETS_FAILED
+	 *                        create an AccountingEntity object
+	 *                        break
+	 *                    When parameter is MQIAMO_PUTS_FAILED
+	 *                        create an AccountingEntity object
+	 *                        break
 	 *                        
 	 *                :
 	 *            :
