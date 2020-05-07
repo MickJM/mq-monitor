@@ -1,5 +1,6 @@
 package maersk.com.mq.monitor.stats;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -29,8 +30,6 @@ import maersk.com.mq.monitor.mqmetrics.MQPCFConstants;
 @Component
 public class MQAccountingStats {
 
-    //static Logger log = Logger.getLogger(MQAccountingStats.class);
-    //static Logger log = LogManager.getLogger(MQAccountingStats.class);
     private final static Logger log = LoggerFactory.getLogger(MQAccountingStats.class);
     		
 	@Autowired
@@ -70,6 +69,8 @@ public class MQAccountingStats {
 	protected static final String lookupPutFail = "mq:put_fails";
 	protected static final String lookupGetFail = "mq:get_fails";
 
+	private static final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss");
+
     private String queueManagerName;
 	public void setQueueManagerName(String v) {
 		this.queueManagerName = v;
@@ -78,7 +79,7 @@ public class MQAccountingStats {
 		return this.queueManagerName;
 	}
 	
-	@Value("${ibm.mq.pcf.period.collections:DAYS}")
+	@Value("${ibm.mq.pcf.period.collections:MONTHS}")
 	private String[] collections;
 	private String[] getCollections() {
 		return this.collections;
@@ -90,7 +91,14 @@ public class MQAccountingStats {
 	public int[] getSearchCollections() {
 		return this.searchCollections;
 	}
-
+	private int collectionTotal = 0;
+	public void incrementCollectionTotal(int v) {
+		this.collectionTotal += v;
+	}
+	public int getCollectionTotal() {
+		return this.collectionTotal;
+	}
+	
 	private StringBuilder sb;
 	public String getCollectionString() {
 		return this.sb.toString();
@@ -123,20 +131,24 @@ public class MQAccountingStats {
 				s[array] = x;
 				array++;		
 				sb.append(w + " ");
+				incrementCollectionTotal(x);
+				
 			}
 			setSearchCollections(s);
 			Arrays.sort(getSearchCollections());	
 			
-			log.info("period collections; " + getCollectionString());
-			
-		}
+		} 
+		log.info("period collections; " + getCollectionString());
+
 	}
-	
+
+	/*
+	 * Create or update the appropriate metrics
+	 * 
+	 */
 	public void createMetric(AccountingEntity ae) throws ParseException {
 
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss");
 		Date dt = formatter.parse(ae.getStartDate() + " " + ae.getStartTime());
-
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(dt);
 				
@@ -145,7 +157,7 @@ public class MQAccountingStats {
 		 */
 		switch (ae.getType()) {
 		
-			case MQConstants.MQIAMO_PUTS:
+			case MQConstants.MQIAMO_PUTS:  // Writes
 				if (ae.getValues()[MQConstants.MQPER_NOT_PERSISTENT] > 0) {
 					puts(ae, cal, MQConstants.MQPER_NOT_PERSISTENT);
 				}
@@ -154,7 +166,7 @@ public class MQAccountingStats {
 				}
 				break;
 	
-			case MQConstants.MQIAMO_GETS:
+			case MQConstants.MQIAMO_GETS:  // Reads
 				if (ae.getValues()[MQConstants.MQPER_NOT_PERSISTENT] > 0) {
 					gets(ae, cal, MQConstants.MQPER_NOT_PERSISTENT);
 				}
@@ -163,7 +175,7 @@ public class MQAccountingStats {
 				}
 				break;
 			
-			case MQConstants.MQIAMO_PUT_MAX_BYTES:
+			case MQConstants.MQIAMO_PUT_MAX_BYTES:  // Writes bytes
 				if (ae.getValues()[MQConstants.MQPER_NOT_PERSISTENT] > 0) {
 					putMaxBytes(ae, cal, MQConstants.MQPER_NOT_PERSISTENT);
 				}
@@ -172,7 +184,7 @@ public class MQAccountingStats {
 				}
 				break;
 				
-			case MQConstants.MQIAMO_GET_MAX_BYTES:
+			case MQConstants.MQIAMO_GET_MAX_BYTES:  // Read bytes
 				if (ae.getValues()[MQConstants.MQPER_NOT_PERSISTENT] > 0) {
 					getMaxBytes(ae, cal, MQConstants.MQPER_NOT_PERSISTENT);
 				}
@@ -198,23 +210,25 @@ public class MQAccountingStats {
 	/*
 	 * PUTS
 	 */
-	private void puts(AccountingEntity ae, Calendar cal, int per) {
+	private void puts(AccountingEntity ae, Calendar cal, int per) throws ParseException {
 
-		int[] values = ae.getValues();		
 		int hourOfDay = cal.get(Calendar.HOUR_OF_DAY); 
 		int dayOfMonth = cal.get(Calendar.DAY_OF_MONTH);
 		int weekOfYear = cal.get(Calendar.WEEK_OF_YEAR);
-		int monthOfYear = cal.get(Calendar.MONTH);
+		int monthOfYear = (cal.get(Calendar.MONTH) + 1); // Month is indexed from 0 !!, so, JAN = 0, FEB = 1 etc 
 		int year = cal.get(Calendar.YEAR);
 
 		StringBuilder hourLabel = meticsLabel(ae, cal, PUTSHOUR, MQConstants.MQCFUNC_MQPUT, per);		
 		long v = 0l;
 		String pers = (per == MQConstants.MQPER_PERSISTENT) ? "true" : "false";
+		int timePeriods = getCollectionTotal();
 		
 		/*
 		 * Hour
-		 */
-		if (Arrays.binarySearch(getSearchCollections(), MQPCFConstants.HOURS) >= 0) {
+		 *
+		*/
+		//if (Arrays.binarySearch(getSearchCollections(), MQPCFConstants.HOURS) >= 0) {
+		if ((timePeriods & MQPCFConstants.HOURS) == MQPCFConstants.HOURS) {		
 			AtomicLong put = hourMap.get(hourLabel.toString());
 			if (put == null) {
 				hourMap.put(hourLabel.toString(), base.meterRegistry.gauge(PUTSHOUR, 
@@ -238,7 +252,8 @@ public class MQAccountingStats {
 		/*
 		 * Day
 		 */
-		if (Arrays.binarySearch(getSearchCollections(), MQPCFConstants.DAYS) >= 0) {
+		//if (Arrays.binarySearch(getSearchCollections(), MQPCFConstants.DAYS) >= 0) {
+		if ((timePeriods & MQPCFConstants.DAYS) == MQPCFConstants.DAYS) {
 			StringBuilder dayLabel = meticsLabel(ae, cal, PUTSDAY, MQConstants.MQCFUNC_MQPUT, per);		
 			AtomicLong put = dayMap.get(dayLabel.toString());
 			if (put == null) {
@@ -262,7 +277,8 @@ public class MQAccountingStats {
 		/*
 		 * Week
 		 */
-		if (Arrays.binarySearch(getSearchCollections(), MQPCFConstants.WEEKS) >= 0) {
+		//if (Arrays.binarySearch(getSearchCollections(), MQPCFConstants.WEEKS) >= 0) {
+		if ((timePeriods & MQPCFConstants.WEEKS) == MQPCFConstants.WEEKS) {
 			StringBuilder weekLabel = meticsLabel(ae, cal, PUTSWEEK, MQConstants.MQCFUNC_MQPUT, per);		
 			AtomicLong put = weekMap.get(weekLabel.toString());
 			if (put == null) {
@@ -285,7 +301,8 @@ public class MQAccountingStats {
 		/*
 		 * Month
 		 */
-		if (Arrays.binarySearch(getSearchCollections(), MQPCFConstants.DAYS) >= 0) {
+		//if (Arrays.binarySearch(getSearchCollections(), MQPCFConstants.MONTHS) >= 0) {
+		if ((timePeriods & MQPCFConstants.MONTHS) == MQPCFConstants.MONTHS) {	
 			StringBuilder monthLabel = meticsLabel(ae, cal, PUTSMONTH, MQConstants.MQCFUNC_MQPUT, per);
 			AtomicLong put = monthMap.get(monthLabel.toString());
 			if (put == null) {
@@ -307,7 +324,8 @@ public class MQAccountingStats {
 		/*
 		 * Year
 		 */
-		if (Arrays.binarySearch(getSearchCollections(), MQPCFConstants.YEARS) >= 0) {
+		//if (Arrays.binarySearch(getSearchCollections(), MQPCFConstants.YEARS) >= 0) {
+		if ((timePeriods & MQPCFConstants.YEARS) == MQPCFConstants.YEARS) {
 			StringBuilder yearLabel = meticsLabel(ae, cal, PUTSYEAR, MQConstants.MQCFUNC_MQPUT, per);
 			AtomicLong put = yearMap.get(yearLabel.toString());
 			if (put == null) {
@@ -326,22 +344,27 @@ public class MQAccountingStats {
 		}
 	}
 
-	private void gets(AccountingEntity ae, Calendar cal, int per) {
+	/*
+	 * GETS
+	 */
+	private void gets(AccountingEntity ae, Calendar cal, int per) throws ParseException {
 
 		int hourOfDay = cal.get(Calendar.HOUR_OF_DAY); 
 		int dayOfMonth = cal.get(Calendar.DAY_OF_MONTH);
 		int weekOfYear = cal.get(Calendar.WEEK_OF_YEAR);
-		int monthOfYear = cal.get(Calendar.MONTH);
+		int monthOfYear = (cal.get(Calendar.MONTH) + 1); // Month is indexed from 0 !!, so, JAN = 0, FEB = 1 etc 
 		int year = cal.get(Calendar.YEAR);
 
 		StringBuilder hourLabel = meticsLabel(ae, cal, GETSHOUR, MQConstants.MQCFUNC_MQGET, per);				
 		long v = 0l;
 		String pers = (per == MQConstants.MQPER_PERSISTENT) ? "true" : "false";
+		int timePeriods = getCollectionTotal();
 		
 		/*
 		 * Hour
 		 */
-		if (Arrays.binarySearch(getSearchCollections(), MQPCFConstants.HOURS) >= 0) {
+		//if (Arrays.binarySearch(getSearchCollections(), MQPCFConstants.HOURS) >= 0) {
+		if ((timePeriods & MQPCFConstants.HOURS) == MQPCFConstants.HOURS) {
 			AtomicLong get = hourMap.get(hourLabel.toString());
 			if (get == null) {
 				hourMap.put(hourLabel.toString(), base.meterRegistry.gauge(GETSHOUR, 
@@ -364,7 +387,8 @@ public class MQAccountingStats {
 		/*
 		 * Day
 		 */
-		if (Arrays.binarySearch(getSearchCollections(), MQPCFConstants.DAYS) >= 0) {
+		//if (Arrays.binarySearch(getSearchCollections(), MQPCFConstants.DAYS) >= 0) {
+		if ((timePeriods & MQPCFConstants.DAYS) == MQPCFConstants.DAYS) {
 			StringBuilder dayLabel = meticsLabel(ae, cal, GETSDAY, MQConstants.MQCFUNC_MQGET, per);		
 			AtomicLong get = dayMap.get(dayLabel.toString());
 			if (get == null) {
@@ -388,7 +412,8 @@ public class MQAccountingStats {
 		/*
 		 * Week
 		 */
-		if (Arrays.binarySearch(getSearchCollections(), MQPCFConstants.WEEKS) >= 0) {
+		//if (Arrays.binarySearch(getSearchCollections(), MQPCFConstants.WEEKS) >= 0) {
+		if ((timePeriods & MQPCFConstants.WEEKS) == MQPCFConstants.WEEKS) {			
 			StringBuilder weekLabel = meticsLabel(ae, cal, GETSWEEK, MQConstants.MQCFUNC_MQGET, per);		
 			AtomicLong get = weekMap.get(weekLabel.toString());
 			if (get == null) {
@@ -412,7 +437,8 @@ public class MQAccountingStats {
 		/*
 		 * Month
 		 */
-		if (Arrays.binarySearch(getSearchCollections(), MQPCFConstants.MONTHS) >= 0) {
+		//if (Arrays.binarySearch(getSearchCollections(), MQPCFConstants.MONTHS) >= 0) {
+		if ((timePeriods & MQPCFConstants.MONTHS) == MQPCFConstants.MONTHS) {			
 			StringBuilder monthLabel = meticsLabel(ae, cal, GETSMONTH, MQConstants.MQCFUNC_MQGET, per);		
 			AtomicLong get = monthMap.get(monthLabel.toString());
 			if (get == null) {
@@ -435,7 +461,8 @@ public class MQAccountingStats {
 		/*
 		 * Year
 		 */
-		if (Arrays.binarySearch(getSearchCollections(), MQPCFConstants.YEARS) >= 0) {
+		//if (Arrays.binarySearch(getSearchCollections(), MQPCFConstants.YEARS) >= 0) {
+		if ((timePeriods & MQPCFConstants.YEARS) == MQPCFConstants.YEARS) {			
 			StringBuilder yearLabel = meticsLabel(ae, cal, GETSYEAR, MQConstants.MQCFUNC_MQGET, per);		
 			AtomicLong get = yearMap.get(yearLabel.toString());
 			if (get == null) {
@@ -500,17 +527,18 @@ public class MQAccountingStats {
 	 */
 	private void putsFailures(AccountingEntity ae, Calendar cal) {
 
-		AtomicLong putFail = putFailMap.get(lookupPutFail + "_" + ae.getQueueName());
+		AtomicLong putFail = putFailMap.get(lookupPutFail + "_" + ae.getQueueManagerName() + "_" + ae.getQueueName());
 		if (putFail == null) {
-			getMaxMap.put(lookupPutFail + "_" + ae.getQueueName(), base.meterRegistry.gauge(lookupPutFail, 
+			putFailMap.put(lookupPutFail + "_" + ae.getQueueManagerName() + "_" + ae.getQueueName()
+							, base.meterRegistry.gauge(lookupPutFail, 
 					Tags.of("queueManagerName", ae.getQueueManagerName(),
 							"queueName", ae.getQueueName()							),
-					new AtomicLong(ae.getValues()[0]))
+					new AtomicLong(ae.getValues()[MQConstants.MQPER_NOT_PERSISTENT]))
 					);
 		} else {
 			long v = putFail.get();
-			if (ae.getValues()[0] > v) {		
-				putFail.set(ae.getValues()[0]);
+			if (ae.getValues()[MQConstants.MQPER_NOT_PERSISTENT] > v) {		
+				putFail.set(ae.getValues()[MQConstants.MQPER_NOT_PERSISTENT]);
 			}
 		}			
 	}
@@ -523,17 +551,18 @@ public class MQAccountingStats {
 	 */
 	private void getsFailures(AccountingEntity ae, Calendar cal) {
 
-		AtomicLong getFail = getFailMap.get(lookupGetFail + "_" + ae.getQueueName());
+		AtomicLong getFail = getFailMap.get(lookupGetFail + "_" + ae.getQueueManagerName() + "_" + ae.getQueueName());
 		if (getFail == null) {
-			getMaxMap.put(lookupGetFail + "_" + ae.getQueueName(), base.meterRegistry.gauge(lookupGetFail, 
+			getFailMap.put(lookupGetFail + "_" + ae.getQueueManagerName() + "_" + ae.getQueueName()
+							, base.meterRegistry.gauge(lookupGetFail, 
 					Tags.of("queueManagerName", ae.getQueueManagerName(),
 							"queueName", ae.getQueueName()							),
-					new AtomicLong(ae.getValues()[0]))
+					new AtomicLong(ae.getValues()[MQConstants.MQPER_NOT_PERSISTENT]))
 					);
 		} else {
 			long v = getFail.get();
-			if (ae.getValues()[0] > v) {		
-				getFail.set(ae.getValues()[0]);
+			if (ae.getValues()[MQConstants.MQPER_NOT_PERSISTENT] > v) {		
+				getFail.set(ae.getValues()[MQConstants.MQPER_NOT_PERSISTENT]);
 			}
 		}			
 		
@@ -542,12 +571,12 @@ public class MQAccountingStats {
 	/*
 	 * Metric Label
 	 */
-	private StringBuilder meticsLabel(AccountingEntity ae, Calendar cal, String typeLabel, String mqType, int per) {
+	private StringBuilder meticsLabel(AccountingEntity ae, Calendar cal, String typeLabel, String mqType, int per) throws ParseException {
 
 		int hourOfDay = cal.get(Calendar.HOUR_OF_DAY); 
 		int dayOfMonth = cal.get(Calendar.DAY_OF_MONTH);
 		int weekOfYear = cal.get(Calendar.WEEK_OF_YEAR);
-		int monthOfYear = cal.get(Calendar.MONTH);
+		int monthOfYear = (cal.get(Calendar.MONTH) + 1); // Month is indexed from 0 !!, so, JAN = 0, FEB = 1 etc 
 		int year = cal.get(Calendar.YEAR);
 		
 		StringBuilder sb = new StringBuilder();

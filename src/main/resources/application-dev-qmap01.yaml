@@ -3,7 +3,7 @@ logging:
     org:
       springframework: OFF
     maersk:
-      com: DEBUG
+      com: INFO
 application:
   save:
     metrics:
@@ -19,23 +19,24 @@ ibm:
     multiInstance: false
     queueManager: QMAP01
     channel: MQ.MONITOR.SVRCONN
-    connName: localhost(1480)
+    connName: localhost(1501)
     sslCipherSpec: TLS_RSA_WITH_AES_256_CBC_SHA256
     sslCipherSpec1: TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384
     useSSL: true
     user: MQmon01
-    password1: Passw0rdPassw0rd1234
+    password: Passw0rdPassw0rd1234
+    authenricateUsingCSP: true
     local: false
     keepMetricsWhenQueueManagerIsDown: false
     clearMetrics: 5
 # accounting / statistics, pcf values, browse true/false - false will delete records
     pcf:
-      accountingType: MQCFT_STATISTICS
+      accountingType1: MQCFT_STATISTICS
       parameters: MQIAMO_PUT_MAX_BYTES, MQIAMO_GET_MAX_BYTES, MQIAMO_PUTS, MQIAMO_GETS, MQIAMO_GETS_FAILED, MQIAMO_PUTS_FAILED
-      browse: false
+      browse: true
       period:
 # Collection time periods
-         collections: HOURS, DAYS, WEEKS, MONTHS, YEARS
+         collections: DAYS, MONTHS, YEARS
 # filter on date / time periods      
          start: 
          end: 
@@ -67,10 +68,10 @@ management:
 info:
   app:
     name: MQ-Monitor
-    description: IBM MQ Metrics
+    description: IBM MQ Monitor
     version: 1.0.0.0
     java:
       version: 1.8.0.0
 server:
   port:
-    8082
+    8081

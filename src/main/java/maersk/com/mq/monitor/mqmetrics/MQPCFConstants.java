@@ -10,28 +10,17 @@ import org.aspectj.weaver.patterns.ThisOrTargetAnnotationPointcut;
 
 public interface MQPCFConstants {
 
-	//final public int NOTSET = -1;
-	//final public int MULTIINSTANCE = 1;
-
-	//final public int BASE = 0;
 	final public int PCF_INIT_VALUE = 0;
-	//final public int NOT_MULTIINSTANCE = 0;
-	//final public int MODE_LOCAL = 0;
+	final public int MODE_LOCAL = 0;
 	final public int MODE_CLIENT = 1;
+
 	final public int EXIT_ERROR = 2;
 		
-	final public int NONE = 10;
-	final public int INFO = 11;
-	final public int DEBUG = 12;
-	final public int WARN = 14;
-	final public int ERROR = 18;
-	final public int TRACE = 116;
-	
-	final public int HOURS = 21;
-	final public int DAYS = 22;
-	final public int WEEKS = 24;
-	final public int MONTHS = 28;
-	final public int YEARS = 216;
+	final public int HOURS = 1;
+	final public int DAYS = 2;
+	final public int WEEKS = 4;
+	final public int MONTHS = 8;
+	final public int YEARS = 16;
 	
 	public static int getIntValue(String w) {
 		

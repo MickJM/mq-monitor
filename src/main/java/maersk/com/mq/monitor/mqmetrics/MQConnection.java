@@ -30,6 +30,7 @@ import org.springframework.stereotype.Component;
 import com.ibm.mq.MQException;
 import com.ibm.mq.MQQueueManager;
 import com.ibm.mq.headers.MQDataException;
+import com.ibm.mq.headers.MQExceptionWrapper;
 import com.ibm.mq.headers.pcf.PCFMessageAgent;
 import com.ibm.mq.headers.pcf.PCFException;
 import maersk.com.mq.monitor.accounting.*;
@@ -156,8 +157,8 @@ public class MQConnection {
 		/*
 		 * Make a connection to the queue manager
 		 */
-		connectToQueueManager();
-		
+		//connectToQueueManager();
+		/*
 		if (getMessageAgent() != null) {
 			getQMStatsObject().setQueueManagerName(queueManager);
 			getAccountingStats().setQueueManagerName(queueManager);
@@ -165,6 +166,7 @@ public class MQConnection {
 			getQMStatsObject().setRunMode(MQPCFConstants.MODE_CLIENT);
 			getQMStatsObject().setVersion();
 		}
+		*/
 		
 		incrementNumberOfMessagesProcessed(0);
 		
@@ -198,6 +200,7 @@ public class MQConnection {
 			log.error("PCFException: ReasonCode " + p.getReason());
 			if (log.isTraceEnabled()) { p.printStackTrace(); }
 			closeQMConnection(p.getReason());
+			getQMStatsObject().connectionBroken(p.reasonCode);
 			queueManagerIsNotRunning(p.getReason());
 			
 		} catch (MQException m) {
@@ -205,31 +208,44 @@ public class MQConnection {
 			log.error("MQException: ReasonCode " + m.getReason());
 			if (log.isTraceEnabled()) { m.printStackTrace(); }
 			closeQMConnection(m.getReason());
+			getQMStatsObject().connectionBroken(m.reasonCode);
 			queueManagerIsNotRunning(m.getReason());
 	    	setMessageAgent(null);
-			
+
+		} catch (MQExceptionWrapper w) {
+			log.error("MQException " + w.getMessage());
+			log.error("MQException: ReasonCode " + w.getReason());
+			if (log.isTraceEnabled()) { w.printStackTrace(); }
+			closeQMConnection(w.getReason());
+			getQMStatsObject().connectionBroken(w.reasonCode);
+			queueManagerIsNotRunning(w.getReason());
+	    	setMessageAgent(null);
+
 		} catch (IOException i) {
 			log.error("IOException " + i.getMessage());
 			if (log.isTraceEnabled()) { i.printStackTrace(); }
 			closeQMConnection();
+			getQMStatsObject().connectionBroken();
 			queueManagerIsNotRunning(MQPCFConstants.PCF_INIT_VALUE);
 			
 		} catch (Exception e) {
 			log.error("Exception " + e.getMessage());
 			if (log.isTraceEnabled()) { e.printStackTrace(); }
 			closeQMConnection();
+			getQMStatsObject().connectionBroken();
 			queueManagerIsNotRunning(MQPCFConstants.PCF_INIT_VALUE);
 		}
-    }
-    
+    }    
 	
 	/*
 	 * Connect to the queue manager
 	 */
 	private void connectToQueueManager() throws MQException, MQDataException, IOException {
 		
-		log.error("No MQ queue manager object");
+		log.warn("No MQ queue manager object");
 		createQueueManagerConnection();
+
+		getQMStatsObject().connectionBroken();
 	}
 	
 	/*
@@ -245,13 +261,33 @@ public class MQConnection {
 	public void createQueueManagerConnection() throws MQException, MQDataException, IOException {
 		
 		whichAuthentication();
-		
+
+	/*	
+		if (getMessageAgent() != null) {
+			getQMStatsObject().setQueueManagerName(queueManager);
+			getAccountingStats().setQueueManagerName(queueManager);
+
+			getQMStatsObject().setRunMode(MQPCFConstants.MODE_CLIENT);
+			getQMStatsObject().setVersion();
+		}
+	*/
+
 		setMQQueueManager(getMQMetricQueueManager().createQueueManager());
 		setMessageAgent(getMQMetricQueueManager().createMessageAgent(getMQQueueManager()));
 		
 		getMQMetricQueueManager().setQueueManager(getQueueManagerName());
 		getQMStatsObject().setQueueManagerName(getQueueManagerName());
-		
+		getAccountingStats().setQueueManagerName(getQueueManagerName());
+
+		if (isRunningLocal()) {
+			getQMStatsObject().setRunMode(MQPCFConstants.MODE_LOCAL);
+			
+		} else {
+			getQMStatsObject().setRunMode(MQPCFConstants.MODE_CLIENT);
+			
+		}
+		getQMStatsObject().setVersion();
+
 		//getMQMetricQueueManager().getQueueManagerMonitoringValues();		
 		getMQMetricQueueManager().calculateStartEndDates();
 		
@@ -261,6 +297,9 @@ public class MQConnection {
 
 	}
 		
+	/*
+	 * Check authentication method ... user or certificates
+	 */
 	private void whichAuthentication() {
 		
 		if (getUserId() != null && (!getUserId().isEmpty())) {
@@ -277,6 +316,7 @@ public class MQConnection {
 		}
 		
 	}
+	
 	/*
 	 * When the queue manager isn't running, send back a status of inactive 
 	 */
@@ -286,7 +326,6 @@ public class MQConnection {
 
 	}
 
-	
 	/*
 	 * Get metrics
 	 */

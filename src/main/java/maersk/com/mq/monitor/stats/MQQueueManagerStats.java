@@ -34,6 +34,8 @@ public class MQQueueManagerStats {
 		this.queueManagerName = v;
 	}
 	
+	private boolean connectionBroken;
+
 	/*
      *  MAP details for the metrics
      */
@@ -72,13 +74,26 @@ public class MQQueueManagerStats {
      */
 	public void QueueManagerNotRunning(int status) {
 		
-		int val = MQPCFConstants.PCF_INIT_VALUE;
+		int val = MQPCFConstants.PCF_INIT_VALUE;		
 		if (status == MQConstants.MQRC_STANDBY_Q_MGR) {
 			val = MQConstants.MQQMSTA_STANDBY;
 		} 		
-		if (status == MQConstants.MQRC_Q_MGR_QUIESCING) {
-			val = MQConstants.MQQMSTA_QUIESCING;
-		} 
+		if (this.connectionBroken) {
+			if (status == MQConstants.MQRC_Q_MGR_QUIESCING) {
+				val = MQConstants.MQQMSTA_QUIESCING;
+			} 
+			if (status == MQConstants.MQRC_CONNECTION_QUIESCING) {
+				val = MQConstants.MQQMSTA_QUIESCING;
+			} 
+
+			//if (status == MQConstants.MQRC_JSSE_ERROR) {
+			//	val = MQConstants.MQQMSTA_QUIESCING;
+			//} 
+			if (status == MQConstants.MQRC_CONNECTION_BROKEN) {
+				val = MQConstants.MQQMSTA_QUIESCING;
+			} 
+
+		}
 	
 		queueManagerStatus(val);
 	}
@@ -87,7 +102,8 @@ public class MQQueueManagerStats {
 		
 		AtomicInteger value = queueManagerStatusMap.get(queueManagerStatus + "_" + getQueueManagerName());
 		if (value == null) {
-			queueManagerStatusMap.put(queueManagerStatus + "_" + getQueueManagerName(), base.meterRegistry.gauge(queueManagerStatus, 
+			queueManagerStatusMap.put(queueManagerStatus + "_" + getQueueManagerName(),
+					base.meterRegistry.gauge(queueManagerStatus, 
 					Tags.of("queueManagerName", getQueueManagerName()
 							),
 					new AtomicInteger(v))
@@ -96,4 +112,22 @@ public class MQQueueManagerStats {
 			value.set(v);
 		}		
 	}
+	
+	/*
+	 * Connection Broken ?
+	 */
+	public void connectionBroken(int status) {
+		if (status == MQConstants.MQRC_CONNECTION_BROKEN
+				|| status == MQConstants.MQRC_CONNECTION_QUIESCING
+				|| status == MQConstants.MQRC_Q_MGR_QUIESCING) {
+			this.connectionBroken = true;
+		} else {
+			connectionBroken();
+		}
+		
+	}
+	public void connectionBroken() {
+		this.connectionBroken = false;
+	}
+
 }

@@ -99,6 +99,13 @@ public class MQMetricsQueueManager<T> {
 	}
 	public String getPassword() { return this.password; }
 	
+	// MQ Connection Security Parameter
+	@Value("${ibm.mq.authenricateUsingCSP:true}")
+	private boolean authCSP;
+	public boolean getMQCSP() {
+		return this.authCSP;
+	}
+	
 	@Value("${ibm.mq.sslCipherSpec}")
 	private String cipher;
 	
@@ -422,10 +429,11 @@ public class MQMetricsQueueManager<T> {
 		
 			if (!StringUtils.isEmpty(getUserId())) {
 				env.put(MQConstants.USER_ID_PROPERTY, getUserId()); 
+				if (!StringUtils.isEmpty(getPassword())) {
+					env.put(MQConstants.PASSWORD_PROPERTY, getPassword());
+				}
 			}
-			if (!StringUtils.isEmpty(this.password)) {
-				env.put(MQConstants.PASSWORD_PROPERTY, getPassword());
-			}
+			env.put(MQConstants.USE_MQCSP_AUTHENTICATION_PROPERTY, getMQCSP());
 			env.put(MQConstants.TRANSPORT_PROPERTY,MQConstants.TRANSPORT_MQSERIES);
 			env.put(MQConstants.APPNAME_PROPERTY,getAppName());
 			
@@ -671,8 +679,10 @@ public class MQMetricsQueueManager<T> {
 
 		}
 		
-		int gmoptions = MQConstants.MQGMO_NO_WAIT |
-				MQConstants.MQGMO_CONVERT;
+		int gmoptions = MQConstants.MQGMO_NO_WAIT 
+				| MQConstants.MQGMO_CONVERT
+				| MQConstants.MQGMO_FAIL_IF_QUIESCING;
+		
 		if (getBrowse()) {
 			gmoptions = MQConstants.MQGMO_BROWSE_FIRST;
 
@@ -898,13 +908,12 @@ public class MQMetricsQueueManager<T> {
 																		|| (pcfArrayValue[MQConstants.MQPER_PERSISTENT] > 0)) {
 
 																	if (pcfQueueName != "") {
-
-																		AccountingEntity ae = createEntity(MQConstants.MQIAMO_PUT_MAX_BYTES, pcfQueueName, pcfArrayValue,
+																		AccountingEntity ae = createEntity(MQConstants.MQIAMO_PUT_MAX_BYTES, 
+																				pcfQueueName, pcfArrayValue, 
 																				startDate, startTime, endDate, endTime);
 																		stats.add(ae);
 																		log.debug("PUTS MAX BYTES: " + pcfQueueName + " { " 
 																				+ pcfArrayValue[MQConstants.MQPER_NOT_PERSISTENT] + ", " + pcfArrayValue[MQConstants.MQPER_PERSISTENT] + " } ");
-
 																	}
 																}
 															}											
@@ -990,9 +999,9 @@ public class MQMetricsQueueManager<T> {
 					/*
 					 * Reset options incase we deleted the message in the deleteMessageUnderCursor method
 					 */
-					getGMO().options = MQConstants.MQGMO_BROWSE_NEXT | 
-							MQConstants.MQGMO_NO_WAIT | 
-							MQConstants.MQGMO_CONVERT;
+					getGMO().options = MQConstants.MQGMO_BROWSE_NEXT 
+							| MQConstants.MQGMO_NO_WAIT 
+							| MQConstants.MQGMO_CONVERT;
 				
 				} // end of ADMIN messages
 
@@ -1000,7 +1009,10 @@ public class MQMetricsQueueManager<T> {
 
 		} catch (MQException e) {
 			if (e.getReason() != MQConstants.MQRC_NO_MSG_AVAILABLE) {
+				log.error("{} {}", e.getMessage(),e.getReason());
 				throw new MQException(e.getCompCode(), e.getReason(), e);
+			} else {
+				log.debug("No more messages");
 			}
 		} 
 
@@ -1048,7 +1060,7 @@ public class MQMetricsQueueManager<T> {
 					MQConstants.MQGMO_CONVERT;
 			try {
 				getQueue().get (message, getGMO());
-				log.info("Deleting message ...." );
+				log.debug("Deleting message ...." );
 
 			} catch (Exception e) {
 				/*
