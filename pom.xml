@@ -5,7 +5,7 @@
 
 	<groupId>maersk.com.mq.metrics</groupId>
 	<artifactId>mq-monitor</artifactId>
-	<version>1.0.0.0</version>
+	<version>1.0.0.1</version>
 	<packaging>jar</packaging>
 	
 	<name>MQ Monitor</name>
@@ -114,6 +114,10 @@
     		<artifactId>jackson-core</artifactId>
   		</dependency>
 
+  		<dependency>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
   
 	</dependencies>
 

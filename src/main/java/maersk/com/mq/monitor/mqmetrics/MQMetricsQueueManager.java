@@ -684,9 +684,9 @@ public class MQMetricsQueueManager<T> {
 				| MQConstants.MQGMO_FAIL_IF_QUIESCING;
 		
 		if (getBrowse()) {
-			gmoptions = MQConstants.MQGMO_BROWSE_FIRST;
-
+			gmoptions = gmoptions | MQConstants.MQGMO_BROWSE_FIRST;
 		} 
+		
 		getGMO().options = gmoptions;
 		getGMO().matchOptions = MQConstants.MQMO_MATCH_MSG_ID  | MQConstants.MQMO_MATCH_CORREL_ID;
 		
@@ -999,10 +999,19 @@ public class MQMetricsQueueManager<T> {
 					/*
 					 * Reset options incase we deleted the message in the deleteMessageUnderCursor method
 					 */
-					getGMO().options = MQConstants.MQGMO_BROWSE_NEXT 
-							| MQConstants.MQGMO_NO_WAIT 
-							| MQConstants.MQGMO_CONVERT;
+					getGMO().options = MQConstants.MQGMO_NO_WAIT 
+							| MQConstants.MQGMO_CONVERT
+							| MQConstants.MQGMO_FAIL_IF_QUIESCING;
+					
+					if (getBrowse()) {
+						getGMO().options = getGMO().options | MQConstants.MQGMO_BROWSE_NEXT;
+					} 
+					
+			//		getGMO().options = MQConstants.MQGMO_BROWSE_NEXT 
+			//				| MQConstants.MQGMO_NO_WAIT 
+			//				| MQConstants.MQGMO_CONVERT;
 				
+					
 				} // end of ADMIN messages
 
 			} // end of loop
