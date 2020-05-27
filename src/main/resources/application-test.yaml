@@ -13,33 +13,34 @@ spring:
   main:
     banner-mode: CONSOLE
   banner:
-    location: banner.txt       
+    location: banner.txt     
+  security:
+    user:
+      name: monitor
+      password: monitor123                  
 ibm:
   mq:
     multiInstance: false
-    queueManager1: "*SMQQM01"
-    queueManager: QMAP03   
-    channel1: MQ.MONITOR.SVRCONN
-    channel: MQ.NONTLS.MONITOR    
+    queueManager: QMAP03
+    channel: MQ.MONITOR.SVRCONN
     connName: localhost(1444)
     sslCipherSpec: TLS_RSA_WITH_AES_256_CBC_SHA256
     sslCipherSpec1: TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384
-    useSSL: false         
-    user: MQmon01
-    password: Passw0rd
+    useSSL: true
+    user: MQmon02
+    password: Passw0rdPassw0rd1234
+    authenricateUsingCSP: true
     local: false
     keepMetricsWhenQueueManagerIsDown: false
     clearMetrics: 5
-    ccdtFile:  
-    ccdtFile1: C:\ProgramData\IBM\MQ\qmgrs\QMAP03\@ipcc\AMQCLCHL.TAB
 # accounting / statistics, pcf values, browse true/false - false will delete records
     pcf:
-      accountingType: MQCFT_STATISTICS
+      accountingType1: MQCFT_STATISTICS
       parameters: MQIAMO_PUT_MAX_BYTES, MQIAMO_GET_MAX_BYTES, MQIAMO_PUTS, MQIAMO_GETS, MQIAMO_GETS_FAILED, MQIAMO_PUTS_FAILED
-      browse: true
+      browse: false
       period:
 # Collection time periods
-         collections: DAYS, WEEKS, MONTHS, YEARS
+         collections: DAYS, MONTHS, YEARS
 # filter on date / time periods      
          start: 
          end: 
@@ -71,10 +72,10 @@ management:
 info:
   app:
     name: MQ-Monitor
-    description: IBM MQ Metrics
-    version: 1.0.0.0
+    description: IBM MQ Monitor
+    version: 1.0.0.1
     java:
       version: 1.8.0.0
 server:
   port:
-    8082
+    8081

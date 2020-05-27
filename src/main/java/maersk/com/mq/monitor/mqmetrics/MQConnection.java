@@ -92,7 +92,7 @@ public class MQConnection {
     private long resetIterations;
 
     private MQQueueManager queManager = null;
-    private MQQueueManager getMQQueueManager() {
+    public MQQueueManager getMQQueueManager() {
     	return this.queManager;
     }
     private void setMQQueueManager(MQQueueManager v) {
@@ -124,6 +124,14 @@ public class MQConnection {
 		return this.qmStats;
 	}
 
+    private int reasonCode;
+    private void saveReasonCode(int v) {
+    	this.reasonCode = v;
+    }
+    public int getReasonCode() {
+    	return this.reasonCode;
+    }
+	
 	@Autowired
 	private MQMonitorBase base;
 
