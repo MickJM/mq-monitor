@@ -43,9 +43,9 @@ public class MQQueueManagerStats {
     private Map<String,AtomicInteger>versionMap = new HashMap<String,AtomicInteger>();
     private Map<String,AtomicInteger>queueManagerStatusMap = new HashMap<String,AtomicInteger>();
 
-    protected static final String runMode = "mq:runMode";
-    protected static final String version = "mq:monitoringVersion";
-    protected static final String queueManagerStatus = "mq:queueManagerStatus";
+    private String runMode = "mq:runMode";
+    private String version = "mq:monitoringVersion";
+    private String queueManagerStatus = "mq:queueManagerStatus";
 
     /*
      * Run Mode

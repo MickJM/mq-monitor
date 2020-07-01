@@ -46,30 +46,22 @@ public class MQAccountingStats {
     private Map<String,AtomicLong>putFailMap = new HashMap<String,AtomicLong>();
     private Map<String,AtomicLong>getFailMap = new HashMap<String,AtomicLong>();
 
-    protected static final String hour = "mq:hour";
-    protected static final String day = "mq:day";
-    protected static final String week = "mq:week";
-    protected static final String month = "mq:month";
-    protected static final String year = "mq:year";
-
-    protected static final String PUTSHOUR = "mq:puts_per_hour";
-    protected static final String GETSHOUR = "mq:gets_per_hour";
-    protected static final String PUTSDAY = "mq:puts_per_day";
-    protected static final String GETSDAY = "mq:gets_per_day";
-    protected static final String PUTSWEEK = "mq:puts_per_week";
-    protected static final String GETSWEEK = "mq:gets_per_week";
-    protected static final String PUTSMONTH = "mq:puts_per_month";
-    protected static final String GETSMONTH = "mq:gets_per_month";
-    protected static final String PUTSYEAR = "mq:puts_per_year";
-    protected static final String GETSYEAR = "mq:gets_per_year";
+    private static final String PUTSHOUR = "mq:puts_per_hour";
+    private static final  String GETSHOUR = "mq:gets_per_hour";
+    private static final  String PUTSDAY = "mq:puts_per_day";
+    private static final  String GETSDAY = "mq:gets_per_day";
+    private static final  String PUTSWEEK = "mq:puts_per_week";
+    private static final  String GETSWEEK = "mq:gets_per_week";
+    private static final  String PUTSMONTH = "mq:puts_per_month";
+    private static final  String GETSMONTH = "mq:gets_per_month";
+    private static final  String PUTSYEAR = "mq:puts_per_year";
+    private static final String GETSYEAR = "mq:gets_per_year";
     
-	protected static final String lookupMaxPutMsgSize = "mq:queueMaxPutMsgSize";
-	protected static final String lookupMaxGetMsgSize = "mq:queueMaxGetMsgSize";
-
-	protected static final String lookupPutFail = "mq:put_fails";
-	protected static final String lookupGetFail = "mq:get_fails";
-
-	private static final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss");
+    private String lookupMaxPutMsgSize = "mq:queueMaxPutMsgSize";
+    private String lookupMaxGetMsgSize = "mq:queueMaxGetMsgSize";
+    private String lookupPutFail = "mq:put_fails";
+    private String lookupGetFail = "mq:get_fails";
+    private SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss");
 
     private String queueManagerName;
 	public void setQueueManagerName(String v) {

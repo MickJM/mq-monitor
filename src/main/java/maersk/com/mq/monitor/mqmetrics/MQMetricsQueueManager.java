@@ -106,7 +106,7 @@ public class MQMetricsQueueManager<T> {
 		return this.authCSP;
 	}
 	
-	@Value("${ibm.mq.sslCipherSpec}")
+	@Value("${ibm.mq.sslCipherSpec:#{null}}")
 	private String cipher;
 	
 	@Value("${ibm.mq.useSSL:false}")
@@ -164,6 +164,16 @@ public class MQMetricsQueueManager<T> {
 		return this.searchAccountingType;
 	}
 
+	/*
+	 * SYSTEM.ADMIN.ACCOUNT.QUEUE and SYSTEM.ADMIN.STATISTICS.QUEUE are the default queues
+	 * ... having this parameter, enables other queue names to be used
+	 */
+	@Value("${ibm.mq.queueName}")
+	private String queueName;
+	private String getQueueName() {
+		return this.queueName;
+	}
+	
 	@Value("${ibm.mq.pcf.parameters:#{null}}")
 	private String[] pcfParameters;
 	private String[] getPCFParameters() {
@@ -460,22 +470,21 @@ public class MQMetricsQueueManager<T> {
 					System.setProperty("javax.net.ssl.trustStore", this.truststore);
 			        System.setProperty("javax.net.ssl.trustStorePassword", this.truststorepass);
 			        System.setProperty("javax.net.ssl.trustStoreType","JKS");
-			        System.setProperty("com.ibm.mq.cfg.useIBMCipherMappings","false");
 				}
 				if (!StringUtils.isEmpty(this.keystore)) {
 			        System.setProperty("javax.net.ssl.keyStore", this.keystore);
 			        System.setProperty("javax.net.ssl.keyStorePassword", this.keystorepass);
 			        System.setProperty("javax.net.ssl.keyStoreType","JKS");
 				}
-				if (!StringUtils.isEmpty(this.cipher)) {
-					env.put(MQConstants.SSL_CIPHER_SUITE_PROPERTY, this.cipher);
+				if (this.cipher != null) {
+					if (!StringUtils.isEmpty(this.cipher)) {
+						env.put(MQConstants.SSL_CIPHER_SUITE_PROPERTY, this.cipher);
+					}
 				}
-			
 			} else {
 				log.debug("SSL is NOT enabled ....");
 			}
 			
-	        //System.setProperty("javax.net.debug","all");
 			if (!StringUtils.isEmpty(this.truststore)) {
 				log.debug("TrustStore       : " + this.truststore);
 				log.debug("TrustStore Pass  : ********");
@@ -659,20 +668,23 @@ public class MQMetricsQueueManager<T> {
 	
 	/*
 	 * Open the queue for reading ...
+	 * 
+	 * 08/06/2020 MJM - Amended openOptions to use MQOO_INPUT_SHARED rather than MQOO_INPUT_AS_Q_DEF
+	 * 
 	 */
 	public void openQueueForReading() throws MQException {
 
 		if (getQueue() == null) {
-			int openOptions = MQConstants.MQOO_INPUT_AS_Q_DEF |
+			int openOptions = MQConstants.MQOO_INPUT_SHARED |
 					MQConstants.MQOO_BROWSE |
 					MQConstants.MQOO_FAIL_IF_QUIESCING;			
 
 			if (getSearchAccountingType() == MQConstants.MQCFT_ACCOUNTING) {
-				setQueue(getQmgr().accessQueue("SYSTEM.ADMIN.ACCOUNTING.QUEUE", openOptions));
+				setQueue(getQmgr().accessQueue(getQueueName(), openOptions));
 				setStatType(MQConstants.MQCFT_ACCOUNTING);
 			}
 			if (getSearchAccountingType() == MQConstants.MQCFT_STATISTICS) {
-				setQueue(getQmgr().accessQueue("SYSTEM.ADMIN.STATISTICS.QUEUE", openOptions));
+				setQueue(getQmgr().accessQueue(getQueueName(), openOptions));
 				setStatType(MQConstants.MQCFT_STATISTICS);
 			}
 			setGMO(new MQGetMessageOptions());

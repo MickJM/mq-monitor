@@ -35,7 +35,6 @@ import maersk.com.mq.monitor.mqmetrics.MQMonitorBase;
 //@RequestMapping(value="/json")
 public class JSONController  {
 
-    //static Logger log = LogManager.getLogger(MQConnection.class);
 	static Logger log = LoggerFactory.getLogger(JSONController.class);
 
 	@Autowired
