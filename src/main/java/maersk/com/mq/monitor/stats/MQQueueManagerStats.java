@@ -27,10 +27,10 @@ public class MQQueueManagerStats {
 	}
 
 	private String queueManagerName;
-	public String getQueueManagerName() {
+	public String QueueManagerName() {
 		return this.queueManagerName;
 	}
-	public void setQueueManagerName(String v) {
+	public void QueueManagerName(String v) {
 		this.queueManagerName = v;
 	}
 	
@@ -50,17 +50,17 @@ public class MQQueueManagerStats {
     /*
      * Run Mode
      */
-	public void setRunMode(int mode) {
+	public void RunMode(int mode) {
 
 		runModeMap.put(runMode, base.meterRegistry.gauge(runMode, 
-				Tags.of("queueManagerName", getQueueManagerName()),
+				Tags.of("queueManagerName", QueueManagerName()),
 				new AtomicInteger(mode)));
 	}
 	
 	/*
 	 * API Version
 	 */
-	public void setVersion() {
+	public void Version() {
 
 		String appVersion = getVersion();
 		String s = appVersion.replaceAll("[\\s.]", "");
@@ -95,16 +95,16 @@ public class MQQueueManagerStats {
 
 		}
 	
-		queueManagerStatus(val);
+		QueueManagerStatus(val);
 	}
 	
-	public void queueManagerStatus(int v) {
+	public void QueueManagerStatus(int v) {
 		
-		AtomicInteger value = queueManagerStatusMap.get(queueManagerStatus + "_" + getQueueManagerName());
+		AtomicInteger value = queueManagerStatusMap.get(queueManagerStatus + "_" + QueueManagerName());
 		if (value == null) {
-			queueManagerStatusMap.put(queueManagerStatus + "_" + getQueueManagerName(),
+			queueManagerStatusMap.put(queueManagerStatus + "_" + QueueManagerName(),
 					base.meterRegistry.gauge(queueManagerStatus, 
-					Tags.of("queueManagerName", getQueueManagerName()
+					Tags.of("queueManagerName", QueueManagerName()
 							),
 					new AtomicInteger(v))
 					);
@@ -116,17 +116,17 @@ public class MQQueueManagerStats {
 	/*
 	 * Connection Broken ?
 	 */
-	public void connectionBroken(int status) {
+	public void ConnectionBroken(int status) {
 		if (status == MQConstants.MQRC_CONNECTION_BROKEN
 				|| status == MQConstants.MQRC_CONNECTION_QUIESCING
 				|| status == MQConstants.MQRC_Q_MGR_QUIESCING) {
 			this.connectionBroken = true;
 		} else {
-			connectionBroken();
+			ConnectionBroken();
 		}
 		
 	}
-	public void connectionBroken() {
+	public void ConnectionBroken() {
 		this.connectionBroken = false;
 	}
 

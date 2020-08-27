@@ -40,21 +40,21 @@ public class JSONController  {
 	@Autowired
 	public MeterRegistry meterRegistry;
 
-	@Autowired
-	private MQMonitorBase base;
+	//@Autowired
+	//private MQMonitorBase base;
 	
 	@Value("${ibm.mq.json.sort:false}")	
 	private boolean sort;
-	public boolean getSort() {
+	public boolean Sort() {
 		return this.sort;
 	}
 	
 	@Value("${ibm.mq.json.order:ascending}")	
 	private String order;
-	public void setOrder(String v) {
+	public void Order(String v) {
 		this.order = v;
 	}
-	public String getOrder() {
+	public String Order() {
 		return this.order;
 	}
 	
@@ -87,7 +87,7 @@ public class JSONController  {
 			if (tags != null) {
 				m.tags = tags;
 			}
-			checkType(metrics, id, m, tags);
+			CheckType(metrics, id, m, tags);
 		}
 		
 		mt.setValue(metrics);
@@ -119,15 +119,15 @@ public class JSONController  {
 		/*
 		 * Sort, if we have require it
 		 */
-		if (this.sort) {
-			if (getOrder().isEmpty() || getOrder() == null) {
-				setOrder("ascending");
+		if (Sort()) {
+			if (Order().isEmpty() || Order() == null) {
+				Order("ascending");
 			}
 			Comparator<Meter.Id> byType = (Id a, Id b) -> (a.getName().compareTo(b.getName()));
-			if (getOrder().equals("ascending")) {
+			if (Order().equals("ascending")) {
 				Collections.sort(filter, byType);
 			}
-			if (getOrder().equals("descending")) {
+			if (Order().equals("descending")) {
 				Collections.sort(filter, byType.reversed());
 			}
 		}
@@ -143,7 +143,7 @@ public class JSONController  {
 				m.tags = tags;
 			}
 	
-			checkType(metrics, id, m, tags);
+			CheckType(metrics, id, m, tags);
 		}
 		
 		mt.setValue(metrics);
@@ -156,7 +156,7 @@ public class JSONController  {
 	/*
 	 * Check the metric type
 	 */
-	private void checkType(List<Metric> metrics, Id id, Metric m, List<Tag> tags) {
+	private void CheckType(List<Metric> metrics, Id id, Metric m, List<Tag> tags) {
 
 		switch (id.getType()) {
 		

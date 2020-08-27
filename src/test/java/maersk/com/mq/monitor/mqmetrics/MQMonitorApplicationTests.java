@@ -77,15 +77,15 @@ public class MQMonitorApplicationTests {
 		log.info("Attempting to connect to {}", getQueueManagerName());		
 		Thread.sleep(2000);
 
-		MQQueueManager qm = conn.getMQQueueManager();
+		MQQueueManager qm = conn.QueueManagerObject();
 		assert (conn) != null;
 
-		assert (conn.getReasonCode() != MQConstants.MQRC_NOT_AUTHORIZED) : "Not authorised to access the queue manager";
-		assert (conn.getReasonCode() != MQConstants.MQRC_ENVIRONMENT_ERROR) : "An environment error has been detected, the most likely cause is trying to connect using a password greater than 12 characters";
-		assert (conn.getReasonCode() != MQConstants.MQRC_HOST_NOT_AVAILABLE) : "MQ host is not available";
-		assert (conn.getReasonCode() != MQConstants.MQRC_UNSUPPORTED_CIPHER_SUITE) : "TLS unsupported cipher";
-		assert (conn.getReasonCode() != MQConstants.MQRC_JSSE_ERROR) : "JSSE error - most likely cause being that certificates are wrong or have expired";
-		assert (conn.getReasonCode() == 0) : "MQ error occurred" ;
+		assert (conn.ReasonCode() != MQConstants.MQRC_NOT_AUTHORIZED) : "Not authorised to access the queue manager";
+		assert (conn.ReasonCode() != MQConstants.MQRC_ENVIRONMENT_ERROR) : "An environment error has been detected, the most likely cause is trying to connect using a password greater than 12 characters";
+		assert (conn.ReasonCode() != MQConstants.MQRC_HOST_NOT_AVAILABLE) : "MQ host is not available";
+		assert (conn.ReasonCode() != MQConstants.MQRC_UNSUPPORTED_CIPHER_SUITE) : "TLS unsupported cipher";
+		assert (conn.ReasonCode() != MQConstants.MQRC_JSSE_ERROR) : "JSSE error - most likely cause being that certificates are wrong or have expired";
+		assert (conn.ReasonCode() == 0) : "MQ error occurred" ;
 		
 	}
 
@@ -98,8 +98,8 @@ public class MQMonitorApplicationTests {
 		log.info("Attempting to connect to {}", getQueueManagerName());		
 		Thread.sleep(2000);
 		
-		conn.getMQQueueManager();
-		conn.getMetrics();
+		conn.QueueManagerObject();
+		conn.GetMetrics();
 		List<Meter.Id> filter = this.meterRegistry.getMeters().stream()
 		        .map(Meter::getId)
 		        .collect(Collectors.toList());

@@ -64,10 +64,10 @@ public class MQAccountingStats {
     private SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss");
 
     private String queueManagerName;
-	public void setQueueManagerName(String v) {
+	public void QueueManagerName(String v) {
 		this.queueManagerName = v;
 	}
-	public String getQueueManagerName() {
+	public String QueueManagerName() {
 		return this.queueManagerName;
 	}
 	
@@ -150,47 +150,53 @@ public class MQAccountingStats {
 		switch (ae.getType()) {
 		
 			case MQConstants.MQIAMO_PUTS:  // Writes
+				log.debug("MQIAMO_PUTS");
 				if (ae.getValues()[MQConstants.MQPER_NOT_PERSISTENT] > 0) {
-					puts(ae, cal, MQConstants.MQPER_NOT_PERSISTENT);
+					Puts(ae, cal, MQConstants.MQPER_NOT_PERSISTENT);
 				}
 				if (ae.getValues()[MQConstants.MQPER_PERSISTENT] > 0) {
-					puts(ae, cal, MQConstants.MQPER_PERSISTENT);
+					Puts(ae, cal, MQConstants.MQPER_PERSISTENT);
 				}
 				break;
 	
 			case MQConstants.MQIAMO_GETS:  // Reads
+				log.debug("MQIAMO_GETS");
 				if (ae.getValues()[MQConstants.MQPER_NOT_PERSISTENT] > 0) {
-					gets(ae, cal, MQConstants.MQPER_NOT_PERSISTENT);
+					Gets(ae, cal, MQConstants.MQPER_NOT_PERSISTENT);
 				}
 				if (ae.getValues()[MQConstants.MQPER_PERSISTENT] > 0) {
-					gets(ae, cal, MQConstants.MQPER_PERSISTENT);
+					Gets(ae, cal, MQConstants.MQPER_PERSISTENT);
 				}
 				break;
 			
 			case MQConstants.MQIAMO_PUT_MAX_BYTES:  // Writes bytes
+				log.debug("MQIAMO_MAX_BYTES");
 				if (ae.getValues()[MQConstants.MQPER_NOT_PERSISTENT] > 0) {
-					putMaxBytes(ae, cal, MQConstants.MQPER_NOT_PERSISTENT);
+					PutMaxBytes(ae, cal, MQConstants.MQPER_NOT_PERSISTENT);
 				}
 				if (ae.getValues()[MQConstants.MQPER_PERSISTENT] > 0) {
-					putMaxBytes(ae, cal, MQConstants.MQPER_PERSISTENT);
+					PutMaxBytes(ae, cal, MQConstants.MQPER_PERSISTENT);
 				}
 				break;
 				
 			case MQConstants.MQIAMO_GET_MAX_BYTES:  // Read bytes
+				log.debug("MQIAMO_GET_MAX_BYTES");
 				if (ae.getValues()[MQConstants.MQPER_NOT_PERSISTENT] > 0) {
-					getMaxBytes(ae, cal, MQConstants.MQPER_NOT_PERSISTENT);
+					GetMaxBytes(ae, cal, MQConstants.MQPER_NOT_PERSISTENT);
 				}
 				if (ae.getValues()[MQConstants.MQPER_PERSISTENT] > 0) {
-					getMaxBytes(ae, cal, MQConstants.MQPER_PERSISTENT);
+					GetMaxBytes(ae, cal, MQConstants.MQPER_PERSISTENT);
 				}				
 				break;
 
 			case MQConstants.MQIAMO_GETS_FAILED:
-				getsFailures(ae, cal);
+				log.debug("MQIAMO_FAILED");
+				GetsFailures(ae, cal);
 				break;
 				
 			case MQConstants.MQIAMO_PUTS_FAILED:
-				putsFailures(ae, cal);	
+				log.debug("MQIAMO_FAILED");
+				PutsFailures(ae, cal);	
 				break;
 				
 			default:
@@ -202,7 +208,7 @@ public class MQAccountingStats {
 	/*
 	 * PUTS
 	 */
-	private void puts(AccountingEntity ae, Calendar cal, int per) throws ParseException {
+	private void Puts(AccountingEntity ae, Calendar cal, int per) throws ParseException {
 
 		int hourOfDay = cal.get(Calendar.HOUR_OF_DAY); 
 		int dayOfMonth = cal.get(Calendar.DAY_OF_MONTH);
@@ -339,7 +345,7 @@ public class MQAccountingStats {
 	/*
 	 * GETS
 	 */
-	private void gets(AccountingEntity ae, Calendar cal, int per) throws ParseException {
+	private void Gets(AccountingEntity ae, Calendar cal, int per) throws ParseException {
 
 		int hourOfDay = cal.get(Calendar.HOUR_OF_DAY); 
 		int dayOfMonth = cal.get(Calendar.DAY_OF_MONTH);
@@ -476,7 +482,7 @@ public class MQAccountingStats {
 	/*
 	 * MAX PUT Value
 	 */
-	private void putMaxBytes(AccountingEntity ae, Calendar cal, int per) {
+	private void PutMaxBytes(AccountingEntity ae, Calendar cal, int per) {
 		
 		AtomicLong putMax = putMaxMap.get(lookupMaxPutMsgSize + "_" + ae.getQueueName() + "_" + per);
 		if (putMax == null) {
@@ -496,7 +502,7 @@ public class MQAccountingStats {
 	/*
 	 * MAX PUT Value
 	 */
-	private void getMaxBytes(AccountingEntity ae, Calendar cal, int per) {
+	private void GetMaxBytes(AccountingEntity ae, Calendar cal, int per) {
 		
 		AtomicLong getMax = getMaxMap.get(lookupMaxGetMsgSize + "_" + ae.getQueueName() + "_" + per);
 		if (getMax == null) {
@@ -517,7 +523,7 @@ public class MQAccountingStats {
 	/*
 	 * Put fails
 	 */
-	private void putsFailures(AccountingEntity ae, Calendar cal) {
+	private void PutsFailures(AccountingEntity ae, Calendar cal) {
 
 		AtomicLong putFail = putFailMap.get(lookupPutFail + "_" + ae.getQueueManagerName() + "_" + ae.getQueueName());
 		if (putFail == null) {
@@ -541,7 +547,7 @@ public class MQAccountingStats {
 	 * Value are set in [0] of the int array, just so I dont have to have another parameter
 	 * ... [1] is not used for single integer values
 	 */
-	private void getsFailures(AccountingEntity ae, Calendar cal) {
+	private void GetsFailures(AccountingEntity ae, Calendar cal) {
 
 		AtomicLong getFail = getFailMap.get(lookupGetFail + "_" + ae.getQueueManagerName() + "_" + ae.getQueueName());
 		if (getFail == null) {

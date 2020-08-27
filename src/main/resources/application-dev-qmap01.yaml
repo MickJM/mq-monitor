@@ -3,7 +3,7 @@ logging:
     org:
       springframework: OFF
     maersk:
-      com: INFO
+      com: DEBUG
 application:
   save:
     metrics:
@@ -20,12 +20,12 @@ spring:
       password: monitor123                  
 ibm:
   mq:
-    multiInstance: false
     queueManager: QMAP01
     channel: MQ.MONITOR.SVRCONN
     connName: localhost(1501)
     queueName: SYSTEM.ADMIN.ACCOUNTING.QUEUE
-    sslCipherSpec: TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256
+    sslCipherSpec: TLS_RSA_WITH_AES_128_CBC_SHA256
+    sslCipherSpec2: TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256
     sslCipherSpec1: TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384
     useSSL: true
     user: MQmon01
@@ -38,7 +38,7 @@ ibm:
     pcf:
       accountingType: MQCFT_ACCOUNTING
       parameters: MQIAMO_PUT_MAX_BYTES, MQIAMO_GET_MAX_BYTES, MQIAMO_PUTS, MQIAMO_GETS, MQIAMO_GETS_FAILED, MQIAMO_PUTS_FAILED
-      browse: false
+      browse: true
       period:
 # Collection time periods
          collections: DAYS, MONTHS, YEARS
@@ -56,9 +56,9 @@ ibm:
     event:
       delayInMilliSeconds: 10000      
     security:
-      truststore: C:\ProgramData\IBM\MQ\qmgrs\QMAP01\ssl\qmap01jks.jks
+      truststore: C:\ProgramData\IBM\MQ\qmgrs\QMAP01\ssl\qmap01test.jks
       truststore-password: Passw0rd
-      keystore: C:\ProgramData\IBM\MQ\qmgrs\QMAP01\ssl\qmap01jks.jks
+      keystore: C:\ProgramData\IBM\MQ\qmgrs\QMAP01\ssl\qmap01test.jks
       keystore-password: Passw0rd
 management:
   endpoints:
