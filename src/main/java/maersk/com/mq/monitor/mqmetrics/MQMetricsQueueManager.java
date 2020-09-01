@@ -647,7 +647,6 @@ public class MQMetricsQueueManager<T> {
 		 *  Save the statistics status
 		 */
 		int stats = response.getIntParameterValue(MQConstants.MQIA_STATISTICS_Q);
-		//setQueueManagerStatistics(stats);
 		if (getSavedQStat() != response.getIntParameterValue(MQConstants.MQIA_STATISTICS_Q)) {
 			setQueueManagerStatistics(stats);
 			setSavedQStat(stats);
@@ -1038,10 +1037,6 @@ public class MQMetricsQueueManager<T> {
 						getGMO().options = getGMO().options | MQConstants.MQGMO_BROWSE_NEXT;
 					} 
 					
-			//		getGMO().options = MQConstants.MQGMO_BROWSE_NEXT 
-			//				| MQConstants.MQGMO_NO_WAIT 
-			//				| MQConstants.MQGMO_CONVERT;
-				
 					
 				} // end of ADMIN messages
 
@@ -1051,6 +1046,7 @@ public class MQMetricsQueueManager<T> {
 			if (e.getReason() != MQConstants.MQRC_NO_MSG_AVAILABLE) {
 				log.error("{} {}", e.getMessage(),e.getReason());
 				throw new MQException(e.getCompCode(), e.getReason(), e);
+
 			} else {
 				log.debug("No more messages");
 			}

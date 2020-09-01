@@ -20,12 +20,6 @@ public class MQMonitorBase implements MQPCFConstants {
 	@Autowired
 	public MeterRegistry meterRegistry;
 
-	//@Value("${application.debug:false}")
-    //protected boolean _debug;
-	
-	//@Value("${application.debugLevel:DEBUG}")
-	//protected String _debugLevel;
-	
 	protected int lev;
 	
 	@Value("${ibm.mq.clearMetrics:10}")

@@ -85,10 +85,6 @@ public class MQQueueManagerStats {
 			if (status == MQConstants.MQRC_CONNECTION_QUIESCING) {
 				val = MQConstants.MQQMSTA_QUIESCING;
 			} 
-
-			//if (status == MQConstants.MQRC_JSSE_ERROR) {
-			//	val = MQConstants.MQQMSTA_QUIESCING;
-			//} 
 			if (status == MQConstants.MQRC_CONNECTION_BROKEN) {
 				val = MQConstants.MQQMSTA_QUIESCING;
 			} 
@@ -98,6 +94,9 @@ public class MQQueueManagerStats {
 		QueueManagerStatus(val);
 	}
 	
+	/*
+	 * Queue Manager status
+	 */
 	public void QueueManagerStatus(int v) {
 		
 		AtomicInteger value = queueManagerStatusMap.get(queueManagerStatus + "_" + QueueManagerName());

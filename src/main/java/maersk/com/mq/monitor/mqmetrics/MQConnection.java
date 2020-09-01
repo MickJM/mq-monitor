@@ -154,22 +154,7 @@ public class MQConnection {
 	@PostConstruct
 	public void SetProperties() throws MQException, MQDataException, IOException {
 		
-		log.info("MQConnection: Object created");
-		
-		/*
-		 * Make a connection to the queue manager
-		 */
-		//connectToQueueManager();
-		/*
-		if (MessageAgent() != null) {
-			QMStatsObject().setQueueManagerName(queueManager);
-			AccountingStats().setQueueManagerName(queueManager);
-
-			QMStatsObject().setRunMode(MQPCFConstants.MODE_CLIENT);
-			QMStatsObject().setVersion();
-		}
-		*/
-		
+		log.info("MQConnection: Object created");		
 		IncrementNumberOfMessagesProcessed(0);
 		
 	}
@@ -289,13 +274,10 @@ public class MQConnection {
 			
 		}
 		QMStatsObject().Version();
-
-		//MQMetricQueueManager().QueueManagerMonitoringValues();		
 		MQMetricQueueManager().CalculateStartEndDates();
 		
 		MQMetricQueueManager().Queue(null);		
 		MQMetricQueueManager().OpenQueueForReading();
-		//QMStatsObject().queueManagerStatus(MQMetricQueueManager().QueueManagerStatus());
 
 	}
 		
