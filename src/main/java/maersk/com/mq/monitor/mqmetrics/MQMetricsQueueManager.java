@@ -112,6 +112,12 @@ public class MQMetricsQueueManager<T> {
 		return this.cipher;
 	}
 	
+	@Value("${ibm.mq.ibmCipherMappings:false}")
+	private String ibmCipherMappings;
+	private String IBMCipherMappings() {
+		return this.ibmCipherMappings;
+	}
+	
 	@Value("${ibm.mq.useSSL:false}")
 	private boolean bUseSSL;
 	public boolean UseSSL() {
@@ -457,14 +463,13 @@ public class MQMetricsQueueManager<T> {
 			 * ... RECDADM will use the username and password if provided ... if a password is not provided
 			 * ...... then the connection is used like OPTIONAL
 			 */		
-		
 			if (!StringUtils.isEmpty(UserId())) {
 				env.put(MQConstants.USER_ID_PROPERTY, UserId()); 
 				if (!StringUtils.isEmpty(Password())) {
 					env.put(MQConstants.PASSWORD_PROPERTY, Password());
 				}
-			}
-			env.put(MQConstants.USE_MQCSP_AUTHENTICATION_PROPERTY, MQCSP());
+				env.put(MQConstants.USE_MQCSP_AUTHENTICATION_PROPERTY, MQCSP());
+			} 			
 			env.put(MQConstants.TRANSPORT_PROPERTY,MQConstants.TRANSPORT_MQSERIES);
 			env.put(MQConstants.APPNAME_PROPERTY,AppName());
 			
@@ -475,12 +480,13 @@ public class MQMetricsQueueManager<T> {
 				}
 			}
 			
-			log.debug("Host		: " + HostName());
-			log.debug("Channel	: " + ChannelName());
-			log.debug("Port		: " + Port());
-			log.debug("Queue Man	: " + QueueManagerName());
-			log.debug("User		: " + UserId());
-			log.debug("Password	: **********");
+			log.debug("Host       : {}", HostName());
+			log.debug("Channel    : {}", ChannelName());
+			log.debug("Port       : {}", Port());
+			log.debug("Queue Man  : {}", QueueManagerName());
+			log.debug("User       : {}", UserId());
+			log.debug("Password   : {}", "**********");
+			log.debug("Queue name : {}", getQueueName());
 			
 			if (UseSSL()) {
 				log.debug("SSL is enabled ....");
@@ -489,6 +495,7 @@ public class MQMetricsQueueManager<T> {
 					System.setProperty("javax.net.ssl.trustStore", TrustStore());
 			        System.setProperty("javax.net.ssl.trustStorePassword", TrustStorePass());
 			        System.setProperty("javax.net.ssl.trustStoreType","JKS");
+			        System.setProperty("com.ibm.mq.cfg.useIBMCipherMappings",IBMCipherMappings());
 				}
 				if (!StringUtils.isEmpty(KeyStore())) {
 			        System.setProperty("javax.net.ssl.keyStore", KeyStore());
@@ -530,7 +537,7 @@ public class MQMetricsQueueManager<T> {
 		} else {
 			if ((CCDTFile() == null) || (CCDTFile().isEmpty())) {
 				log.info("Attempting to connect to queue manager {} ", QueueManagerName());
-				qmgr = new MQQueueManager(QueueManagerName(), env);
+				qmgr = new MQQueueManager(this.queueManager, env);
 				
 			} else {
 				URL ccdtFileName = new URL("file:///" + CCDTFile());

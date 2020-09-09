@@ -32,7 +32,6 @@ import maersk.com.mq.monitor.mqmetrics.MQMonitorBase;
 
 @RestController
 @ComponentScan
-//@RequestMapping(value="/json")
 public class JSONController  {
 
 	static Logger log = LoggerFactory.getLogger(JSONController.class);
@@ -40,9 +39,6 @@ public class JSONController  {
 	@Autowired
 	public MeterRegistry meterRegistry;
 
-	//@Autowired
-	//private MQMonitorBase base;
-	
 	@Value("${ibm.mq.json.sort:false}")	
 	private boolean sort;
 	public boolean Sort() {

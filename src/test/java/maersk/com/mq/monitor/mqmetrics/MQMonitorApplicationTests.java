@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -44,13 +45,13 @@ import maersk.com.mq.monitor.mqmetrics.MQConnection;
 import maersk.com.mq.monitor.mqmetrics.MQMetricsApplication;
 import maersk.com.mq.monitor.mqmetrics.MQMetricsQueueManager;
 
-//@ActiveProfiles("test")
-//@SpringBootApplication
-
 @RunWith(SpringRunner.class)
+//@ComponentScan(basePackages = { "maersk.com.mq.monitor.mqmetrics"} )
+//@ComponentScan("maersk.com.mq.monitor.stats")
 @SpringBootTest(classes = { MQMetricsApplication.class })
 @Component
 @ActiveProfiles("test")
+//@ActiveProfiles("test")
 public class MQMonitorApplicationTests {
 
 	static Logger log = LoggerFactory.getLogger(MQMonitorApplicationTests.class);
@@ -77,18 +78,22 @@ public class MQMonitorApplicationTests {
 		log.info("Attempting to connect to {}", getQueueManagerName());		
 		Thread.sleep(2000);
 
-		MQQueueManager qm = conn.QueueManagerObject();
-		assert (conn) != null;
+		assert (conn != null) : "MQ connection object has not been created";
 
-		assert (conn.ReasonCode() != MQConstants.MQRC_NOT_AUTHORIZED) : "Not authorised to access the queue manager";
+		//MQQueueManager qm = conn.ConnectToQueueManager();
+		log.info("Return code: " + conn.ReasonCode());
+
+		assert (conn.ReasonCode() != MQConstants.MQRC_NOT_AUTHORIZED) : "Not authorised to access the queue manager, ensure that the username/password are correct";
 		assert (conn.ReasonCode() != MQConstants.MQRC_ENVIRONMENT_ERROR) : "An environment error has been detected, the most likely cause is trying to connect using a password greater than 12 characters";
 		assert (conn.ReasonCode() != MQConstants.MQRC_HOST_NOT_AVAILABLE) : "MQ host is not available";
-		assert (conn.ReasonCode() != MQConstants.MQRC_UNSUPPORTED_CIPHER_SUITE) : "TLS unsupported cipher";
+		assert (conn.ReasonCode() != MQConstants.MQRC_UNSUPPORTED_CIPHER_SUITE) : "TLS unsupported cipher - set ibmCipherMappings to false if using IBM Oracle JRE";
 		assert (conn.ReasonCode() != MQConstants.MQRC_JSSE_ERROR) : "JSSE error - most likely cause being that certificates are wrong or have expired";
 		assert (conn.ReasonCode() == 0) : "MQ error occurred" ;
+		//assert (qm != null) : "Queue manager connection was not successful" ;
 		
 	}
 
+	
 	@Test
 	@Order(2)
 	public void testFindGaugeMetrics() throws MQDataException, ParseException, 
@@ -97,7 +102,8 @@ public class MQMonitorApplicationTests {
 		
 		log.info("Attempting to connect to {}", getQueueManagerName());		
 		Thread.sleep(2000);
-		
+
+		MQQueueManager qm = conn.QueueManagerObject();
 		conn.QueueManagerObject();
 		conn.GetMetrics();
 		List<Meter.Id> filter = this.meterRegistry.getMeters().stream()
@@ -116,8 +122,7 @@ public class MQMonitorApplicationTests {
 			if (id.getName().startsWith("mq:")) {
 				mqMetrics++;
 			}
-			/*
-			 * 			
+
 			Metric m = new Metric();
 			m.setName(id.getName());
 
@@ -127,11 +132,11 @@ public class MQMonitorApplicationTests {
 				Gauge g = this.meterRegistry.find(id.getName()).tags(tags).gauge();
 				assert(g) != null;
 			}
-			*/
+			
 		}
 		assert (mqMetrics > 0) : "No mq: metrics generated";
 		
 		
 	}
-	
+
 }

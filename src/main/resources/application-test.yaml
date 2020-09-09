@@ -3,12 +3,7 @@ logging:
     org:
       springframework: OFF
     maersk:
-      com: INFO
-application:
-  save:
-    metrics:
-     required: false
-     filename: c:\Users\mickm\eclipse-workspace\mq-metrics\mq-metrics\mySavedMetrics.json
+      com: DEBUG
 spring:
   main:
     banner-mode: CONSOLE
@@ -20,24 +15,25 @@ spring:
       password: monitor123                  
 ibm:
   mq:
-    multiInstance: false
-    queueManager: QMAP03
+    queueManager: QMAP01
+    channel1: NOCRED_WITHCHLAUTH
     channel: MQ.MONITOR.SVRCONN
-    connName: localhost(1444)
-    sslCipherSpec: TLS_RSA_WITH_AES_256_CBC_SHA256
-    sslCipherSpec1: TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384
+    connName: localhost(1501)
+    queueName: SYSTEM.ADMIN.ACCOUNTING.QUEUE
+    sslCipherSpec: TLS_RSA_WITH_AES_128_CBC_SHA256
+    ibmCipherMapping: false
     useSSL: true
-    user: MQmon02
-    password: Passw0rdPassw0rd1234
+    user: MQmon01
+    password: Passw0rd
     authenricateUsingCSP: true
     local: false
     keepMetricsWhenQueueManagerIsDown: false
     clearMetrics: 5
 # accounting / statistics, pcf values, browse true/false - false will delete records
     pcf:
-      accountingType1: MQCFT_STATISTICS
+      accountingType: MQCFT_ACCOUNTING
       parameters: MQIAMO_PUT_MAX_BYTES, MQIAMO_GET_MAX_BYTES, MQIAMO_PUTS, MQIAMO_GETS, MQIAMO_GETS_FAILED, MQIAMO_PUTS_FAILED
-      browse: false
+      browse: true
       period:
 # Collection time periods
          collections: DAYS, MONTHS, YEARS
@@ -55,9 +51,9 @@ ibm:
     event:
       delayInMilliSeconds: 10000      
     security:
-      truststore: C:\ProgramData\IBM\MQ\qmgrs\QMAP03\ssl\qmap03jks.jks
+      truststore: C:\ProgramData\IBM\MQ\qmgrs\QMAP01\ssl\qmap01test.jks
       truststore-password: Passw0rd
-      keystore: C:\ProgramData\IBM\MQ\qmgrs\QMAP03\ssl\qmap03jks.jks
+      keystore: C:\ProgramData\IBM\MQ\qmgrs\QMAP01\ssl\qmap01test.jks
       keystore-password: Passw0rd
 management:
   endpoints:
@@ -67,13 +63,13 @@ management:
   endpoint:
     health:
       show-details: always        
-  security:
-    enabled: false
+#  security:
+#    enabled: false
 info:
   app:
     name: MQ-Monitor
     description: IBM MQ Monitor
-    version: 1.0.0.1
+    version: 1.0.0.3
     java:
       version: 1.8.0.0
 server:

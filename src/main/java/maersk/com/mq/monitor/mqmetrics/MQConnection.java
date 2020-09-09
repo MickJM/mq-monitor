@@ -29,6 +29,7 @@ import org.springframework.stereotype.Component;
 
 import com.ibm.mq.MQException;
 import com.ibm.mq.MQQueueManager;
+import com.ibm.mq.constants.MQConstants;
 import com.ibm.mq.headers.MQDataException;
 import com.ibm.mq.headers.MQExceptionWrapper;
 import com.ibm.mq.headers.pcf.PCFMessageAgent;
@@ -193,6 +194,9 @@ public class MQConnection {
 		} catch (MQException m) {
 			log.error("MQException " + m.getMessage());
 			log.error("MQException: ReasonCode " + m.getReason());
+			if (m.getReason() == MQConstants.MQRC_UNSUPPORTED_CIPHER_SUITE) {
+				log.error("Most likely cause is that the useIBMCipherMappings property is not set correctly");
+			}
 			if (log.isTraceEnabled()) { m.printStackTrace(); }
 			CloseQMConnection(m.getReason());
 			QMStatsObject().ConnectionBroken(m.reasonCode);
@@ -231,8 +235,8 @@ public class MQConnection {
 		
 		log.warn("No MQ queue manager object");
 		CreateQueueManagerConnection();
-
 		QMStatsObject().ConnectionBroken();
+		
 	}
 	
 	/*
@@ -248,16 +252,6 @@ public class MQConnection {
 	public void CreateQueueManagerConnection() throws MQException, MQDataException, IOException {
 		
 		WhichAuthentication();
-
-	/*	
-		if (MessageAgent() != null) {
-			QMStatsObject().setQueueManagerName(queueManager);
-			AccountingStats().setQueueManagerName(queueManager);
-
-			QMStatsObject().setRunMode(MQPCFConstants.MODE_CLIENT);
-			QMStatsObject().setVersion();
-		}
-	*/
 
 		QueueManagerObject(MQMetricQueueManager().CreateQueueManager());
 		MessageAgent(MQMetricQueueManager().CreateMessageAgent(QueueManagerObject()));
