@@ -156,6 +156,9 @@ public class MQConnection {
 	public void SetProperties() throws MQException, MQDataException, IOException {
 		
 		log.info("MQConnection: Object created");		
+		log.info("OS : {}", System.getProperty("os.name").trim() );
+		log.info("PID: {}", ProcessHandle.current().pid() );
+
 		IncrementNumberOfMessagesProcessed(0);
 		
 	}
