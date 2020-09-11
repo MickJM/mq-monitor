@@ -3,7 +3,7 @@ logging:
     org:
       springframework: OFF
     maersk:
-      com: DEBUG
+      com: INFO
 spring:
   main:
     banner-mode: CONSOLE

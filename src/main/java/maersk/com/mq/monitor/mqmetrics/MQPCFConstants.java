@@ -22,6 +22,9 @@ public interface MQPCFConstants {
 	final public int MONTHS = 8;
 	final public int YEARS = 16;
 	
+	final public int ERROR_IO_EXCEPTION = 9998;
+	final public int ERROR_EXCEPTION = 9997;
+	
 	public static int getIntValue(String w) {
 		
 		int ret = 0;

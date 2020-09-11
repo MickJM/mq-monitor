@@ -37,7 +37,7 @@ import com.ibm.mq.headers.pcf.PCFParameter;
 import maersk.com.mq.monitor.accounting.AccountingEntity;
 
 @Component
-public class MQMetricsQueueManager<T> {
+public class MQMetricsQueueManager {
 
 	private final static Logger log = LoggerFactory.getLogger(MQMetricsQueueManager.class);	
 				
@@ -197,8 +197,11 @@ public class MQMetricsQueueManager<T> {
 	 */
 	@Value("${ibm.mq.queueName}")
 	private String queueName;
-	private String getQueueName() {
+	public String getQueueName() {
 		return this.queueName;
+	}
+	public void setQueueName(String v) {
+		this.queueName = v;
 	}
 	
 	@Value("${ibm.mq.pcf.parameters:#{null}}")
@@ -353,7 +356,7 @@ public class MQMetricsQueueManager<T> {
 	public synchronized void setAccounting(int v) {		
 		this.qmgrAccounting = v;
 	}
-	public synchronized int getAccounting() {		
+	public synchronized int getQueueManagerAccounting() {		
 		return this.qmgrAccounting;
 	}
 	/*
@@ -560,7 +563,6 @@ public class MQMetricsQueueManager<T> {
 		log.info("Attempting to create a PCFAgent ");
 		PCFMessageAgent pcfmsgagent = new PCFMessageAgent(queManager);
 		log.info("PCFAgent created successfully");
-		
 		setMessageAgent(pcfmsgagent);
 		
 		return pcfmsgagent;	

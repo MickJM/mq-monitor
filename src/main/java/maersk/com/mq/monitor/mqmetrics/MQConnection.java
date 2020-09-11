@@ -153,12 +153,15 @@ public class MQConnection {
 	}
 	
 	@PostConstruct
-	public void SetProperties() throws MQException, MQDataException, IOException {
+	public void SetProperties() {
 		
-		log.info("MQConnection: Object created");		
-		log.info("OS : {}", System.getProperty("os.name").trim() );
-		log.info("PID: {}", ProcessHandle.current().pid() );
+		log.info("MQConnection: Object created");
+		try {
+			log.info("OS : {}", System.getProperty("os.name").trim() );
 
+		} catch (Exception e) {
+			// continue
+		}
 		IncrementNumberOfMessagesProcessed(0);
 		
 	}
@@ -189,35 +192,42 @@ public class MQConnection {
 		} catch (PCFException p) {
 			log.error("PCFException " + p.getMessage());
 			log.error("PCFException: ReasonCode " + p.getReason());
+			ReasonCode(p.getReason());
 			if (log.isTraceEnabled()) { p.printStackTrace(); }
 			CloseQMConnection(p.getReason());
-			QMStatsObject().ConnectionBroken(p.reasonCode);
+			QMStatsObject().ConnectionBroken(p.getReason());
 			QueueManagerIsNotRunning(p.getReason());
 			
 		} catch (MQException m) {
 			log.error("MQException " + m.getMessage());
 			log.error("MQException: ReasonCode " + m.getReason());
+			ReasonCode(m.getReason());
 			if (m.getReason() == MQConstants.MQRC_UNSUPPORTED_CIPHER_SUITE) {
 				log.error("Most likely cause is that the useIBMCipherMappings property is not set correctly");
 			}
 			if (log.isTraceEnabled()) { m.printStackTrace(); }
 			CloseQMConnection(m.getReason());
-			QMStatsObject().ConnectionBroken(m.reasonCode);
+			QMStatsObject().ConnectionBroken(m.getReason());
 			QueueManagerIsNotRunning(m.getReason());
 	    	MessageAgent(null);
 
 		} catch (MQExceptionWrapper w) {
 			log.error("MQException " + w.getMessage());
 			log.error("MQException: ReasonCode " + w.getReason());
+			ReasonCode(w.getReason());
+			if (w.getReason() == MQConstants.MQRC_UNSUPPORTED_CIPHER_SUITE) {
+				log.error("Most likely cause is that the useIBMCipherMappings property is not set correctly");
+			}
 			if (log.isTraceEnabled()) { w.printStackTrace(); }
 			CloseQMConnection(w.getReason());
-			QMStatsObject().ConnectionBroken(w.reasonCode);
+			QMStatsObject().ConnectionBroken(w.getReason());
 			QueueManagerIsNotRunning(w.getReason());
 	    	MessageAgent(null);
 
 		} catch (IOException i) {
 			log.error("IOException " + i.getMessage());
 			if (log.isTraceEnabled()) { i.printStackTrace(); }
+			ReasonCode(MQPCFConstants.ERROR_IO_EXCEPTION);
 			CloseQMConnection();
 			QMStatsObject().ConnectionBroken();
 			QueueManagerIsNotRunning(MQPCFConstants.PCF_INIT_VALUE);
@@ -225,6 +235,7 @@ public class MQConnection {
 		} catch (Exception e) {
 			log.error("Exception " + e.getMessage());
 			if (log.isTraceEnabled()) { e.printStackTrace(); }
+			ReasonCode(MQPCFConstants.ERROR_EXCEPTION);
 			CloseQMConnection();
 			QMStatsObject().ConnectionBroken();
 			QueueManagerIsNotRunning(MQPCFConstants.PCF_INIT_VALUE);
@@ -277,7 +288,25 @@ public class MQConnection {
 		MQMetricQueueManager().OpenQueueForReading();
 
 	}
+	
+	/*
+	 * Get the queue manager statistics value
+	 */
+	public int GetQueueManagerStatistics() {
 		
+		int ret = MQMetricQueueManager().getQueueManagerStatistics();
+		return ret;
+	}
+
+	/*
+	 * Get the queue manager accounting value
+	 */
+	public int GetQueueManagerAccounting() {
+		
+		int ret = MQMetricQueueManager().getQueueManagerAccounting();
+		return ret;
+	}
+	
 	/*
 	 * Check authentication method ... user or certificates
 	 */
