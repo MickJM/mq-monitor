@@ -100,7 +100,7 @@ public class MQMetricsQueueManager {
 	public String Password() { return this.password; }
 	
 	// MQ Connection Security Parameter
-	@Value("${ibm.mq.authenricateUsingCSP:true}")
+	@Value("${ibm.mq.authenticateUsingCSP:true}")
 	private boolean authCSP;
 	public boolean MQCSP() {
 		return this.authCSP;
