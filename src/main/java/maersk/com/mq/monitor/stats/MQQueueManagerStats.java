@@ -11,14 +11,13 @@ import com.ibm.mq.constants.MQConstants;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tags;
-import maersk.com.mq.monitor.mqmetrics.MQMonitorBase;
 import maersk.com.mq.monitor.mqmetrics.MQPCFConstants;
 
 @Component
 public class MQQueueManagerStats {
 
 	@Autowired
-	private MQMonitorBase base;
+	public MeterRegistry meterRegistry;
 
 	@Value("${info.app.version:notset}")
 	private String versionNumeric;
@@ -52,7 +51,7 @@ public class MQQueueManagerStats {
      */
 	public void RunMode(int mode) {
 
-		runModeMap.put(runMode, base.meterRegistry.gauge(runMode, 
+		runModeMap.put(runMode, this.meterRegistry.gauge(runMode, 
 				Tags.of("queueManagerName", QueueManagerName()),
 				new AtomicInteger(mode)));
 	}
@@ -65,7 +64,7 @@ public class MQQueueManagerStats {
 		String appVersion = getVersion();
 		String s = appVersion.replaceAll("[\\s.]", "");
 		int v = Integer.parseInt(s);		
-		versionMap.put(version, base.meterRegistry.gauge(version, 
+		versionMap.put(version, this.meterRegistry.gauge(version, 
 				new AtomicInteger(v)));		
 	}
 	
@@ -102,7 +101,7 @@ public class MQQueueManagerStats {
 		AtomicInteger value = queueManagerStatusMap.get(queueManagerStatus + "_" + QueueManagerName());
 		if (value == null) {
 			queueManagerStatusMap.put(queueManagerStatus + "_" + QueueManagerName(),
-					base.meterRegistry.gauge(queueManagerStatus, 
+					this.meterRegistry.gauge(queueManagerStatus, 
 					Tags.of("queueManagerName", QueueManagerName()
 							),
 					new AtomicInteger(v))

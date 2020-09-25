@@ -26,9 +26,7 @@ import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tag;
 import io.micrometer.core.instrument.Timer;
 import io.micrometer.core.instrument.Meter.Id;
-
 import maersk.com.mq.json.entities.*;
-import maersk.com.mq.monitor.mqmetrics.MQMonitorBase;
 
 @RestController
 @ComponentScan
@@ -57,8 +55,8 @@ public class JSONController  {
 	/*
 	 * URI for ALL metrics
 	 */
-	@RequestMapping(method=RequestMethod.GET, value="/json/getallmetrics", produces={"application/json"})
-	public ResponseEntity<Object> allmetrics() {
+	@RequestMapping(method=RequestMethod.GET, value="/json/allmetrics", produces={"application/json"})
+	public ResponseEntity<Object> AllMetrics() {
 
 		log.debug("REST JSON API invoked"); 
 		List<Object> entities = new ArrayList<Object>();		
@@ -94,8 +92,8 @@ public class JSONController  {
 	/*
 	 * URI for mq metrics
 	 */
-	@RequestMapping(method=RequestMethod.GET, value="/json/getmqmetrics", produces={"application/json"})
-	public ResponseEntity<Object> mqmetrics() {
+	@RequestMapping(method=RequestMethod.GET, value="/json/mqmetrics", produces={"application/json"})
+	public ResponseEntity<Object> MQMetrics() {
 
 		log.debug("REST MQ JSON API invoked"); 		
 		List<Object> entities = new ArrayList<Object>();

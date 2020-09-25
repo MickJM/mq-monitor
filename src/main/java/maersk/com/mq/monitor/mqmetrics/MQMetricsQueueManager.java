@@ -383,8 +383,8 @@ public class MQMetricsQueueManager {
 	protected final String LOW = "1970-01-01 00.00.00";
 	protected final String HIGH = "9999-12-31 23.59.59";
 
-	@Autowired
-    private MQMonitorBase base;
+	//@Autowired
+    //private MQMonitorBase base;
 
     /*
      * Constructor
@@ -404,7 +404,9 @@ public class MQMetricsQueueManager {
 				final int x = MQConstants.getIntValue(w);
 				if ((x != MQConstants.MQIAMO_PUT_MAX_BYTES) && (x != MQConstants.MQIAMO_GET_MAX_BYTES)
 						&& (x != MQConstants.MQIAMO_PUTS) && (x != MQConstants.MQIAMO_GETS)
-						&& (x != MQConstants.MQIAMO_PUTS_FAILED) && (x != MQConstants.MQIAMO_GETS_FAILED)) {
+						&& (x != MQConstants.MQIAMO_PUTS_FAILED) && (x != MQConstants.MQIAMO_GETS_FAILED)
+						&& (x != MQConstants.MQIAMO_OPENS) && (x != MQConstants.MQIAMO_CLOSES)
+						) {
 					log.error("Invalid PCF parameter : " + MQConstants.lookup(x, null));
 					throw new Exception("Invalid PCF Parameter");
 				}
@@ -815,7 +817,7 @@ public class MQMetricsQueueManager {
 	 *        :
 	 *        
 	 */
-	public List<AccountingEntity> ReadAccountData() throws MQDataException, IOException, MQException {
+	public List<AccountingEntity> ReadAccountingData() throws MQDataException, IOException, MQException {
 
 		final List<AccountingEntity> stats = new ArrayList<AccountingEntity>();
 		stats.clear();
@@ -908,7 +910,7 @@ public class MQMetricsQueueManager {
 																		|| (pcfArrayValue[MQConstants.MQPER_PERSISTENT] > 0)) {
 
 																	if (pcfQueueName != "") {																		
-																		AccountingEntity ae = createEntity(MQConstants.MQIAMO_GETS, 
+																		AccountingEntity ae = CreateEntity(MQConstants.MQIAMO_GETS, 
 																				pcfQueueName, pcfArrayValue,
 																				startDate, startTime, endDate, endTime);
 																		stats.add(ae);																		
@@ -927,7 +929,7 @@ public class MQMetricsQueueManager {
 																		|| (pcfArrayValue[MQConstants.MQPER_PERSISTENT] > 0)) {
 
 																	if (pcfQueueName != "") {
-																		AccountingEntity ae = createEntity(MQConstants.MQIAMO_PUTS, 
+																		AccountingEntity ae = CreateEntity(MQConstants.MQIAMO_PUTS, 
 																				pcfQueueName, pcfArrayValue,
 																				startDate, startTime, endDate, endTime);
 																		stats.add(ae);
@@ -947,7 +949,7 @@ public class MQMetricsQueueManager {
 																		|| (pcfArrayValue[MQConstants.MQPER_PERSISTENT] > 0)) {
 
 																	if (pcfQueueName != "") {
-																		AccountingEntity ae = createEntity(MQConstants.MQIAMO_PUT_MAX_BYTES, 
+																		AccountingEntity ae = CreateEntity(MQConstants.MQIAMO_PUT_MAX_BYTES, 
 																				pcfQueueName, pcfArrayValue, 
 																				startDate, startTime, endDate, endTime);
 																		stats.add(ae);
@@ -966,7 +968,7 @@ public class MQMetricsQueueManager {
 																		|| (pcfArrayValue[MQConstants.MQPER_PERSISTENT] > 0)) {
 
 																	if (pcfQueueName != "") {
-																		AccountingEntity ae = createEntity(MQConstants.MQIAMO_GET_MAX_BYTES, 
+																		AccountingEntity ae = CreateEntity(MQConstants.MQIAMO_GET_MAX_BYTES, 
 																				pcfQueueName, pcfArrayValue,
 																				startDate, startTime, endDate, endTime);
 																		stats.add(ae);
@@ -987,7 +989,7 @@ public class MQMetricsQueueManager {
 																if (pcfArrayValue[MQConstants.MQPER_NOT_PERSISTENT] > 0) {
 																	
 																	if (pcfQueueName != "") {
-																		AccountingEntity ae = createEntity(MQConstants.MQIAMO_GETS_FAILED, 
+																		AccountingEntity ae = CreateEntity(MQConstants.MQIAMO_GETS_FAILED, 
 																				pcfQueueName, pcfArrayValue,
 																				startDate, startTime, endDate, endTime);
 																		stats.add(ae);
@@ -1007,7 +1009,7 @@ public class MQMetricsQueueManager {
 																if (pcfArrayValue[MQConstants.MQPER_NOT_PERSISTENT] > 0) {
 	
 																	if (pcfQueueName != "") {
-																		AccountingEntity ae = createEntity(MQConstants.MQIAMO_PUTS_FAILED, 
+																		AccountingEntity ae = CreateEntity(MQConstants.MQIAMO_PUTS_FAILED, 
 																				pcfQueueName, pcfArrayValue,
 																				startDate, startTime, endDate, endTime);
 																		stats.add(ae);
@@ -1020,7 +1022,43 @@ public class MQMetricsQueueManager {
 															}										
 															break;
 															
+														case (MQConstants.MQIAMO_OPENS):
+															if (Arrays.binarySearch(getSearchPCF(), MQConstants.MQIAMO_OPENS) >= 0) {							
+																MQCFIN max = (MQCFIN) grpPCFParams;
+																final int[] pcfArrayValue = {max.getIntValue(),0};
+																if (pcfArrayValue[MQConstants.MQPER_NOT_PERSISTENT] > 0) {
+	
+																	if (pcfQueueName != "") {
+																		AccountingEntity ae = CreateEntity(MQConstants.MQIAMO_OPENS, 
+																				pcfQueueName, pcfArrayValue,
+																				startDate, startTime, endDate, endTime);
+																		stats.add(ae);
+																		log.debug("OPEN: " + pcfQueueName + " { " 
+																			+ pcfArrayValue[MQConstants.MQPER_NOT_PERSISTENT] + ", " + pcfArrayValue[MQConstants.MQPER_PERSISTENT] + " } ");
+																	}
+																}
+																break;
+															}
+															break;
+															
+														case (MQConstants.MQIAMO_CLOSES):
+															MQCFIN max = (MQCFIN) grpPCFParams;
+															final int[] pcfArrayValue = {max.getIntValue(),0};
+															if (pcfArrayValue[MQConstants.MQPER_NOT_PERSISTENT] > 0) {
+
+																if (pcfQueueName != "") {
+																	AccountingEntity ae = CreateEntity(MQConstants.MQIAMO_CLOSES, 
+																			pcfQueueName, pcfArrayValue,
+																			startDate, startTime, endDate, endTime);
+																	stats.add(ae);
+																	log.debug("CLOSES: " + pcfQueueName + " { " 
+																		+ pcfArrayValue[MQConstants.MQPER_NOT_PERSISTENT] + ", " + pcfArrayValue[MQConstants.MQPER_PERSISTENT] + " } ");
+																}
+															}
+															break;
+															
 														default:
+															log.debug("NON Processed event");
 															break;
 															
 													} // end of switch
@@ -1072,7 +1110,7 @@ public class MQMetricsQueueManager {
 	/*
 	 * Create accounting entity
 	 */
-	private AccountingEntity createEntity(int pcfType, String pcfQueueName, int[] pcfArrayValue,
+	private AccountingEntity CreateEntity(int pcfType, String pcfQueueName, int[] pcfArrayValue,
 			String startDate, String startTime, String endDate, String endTime  ) {
 		
 		AccountingEntity ae = new AccountingEntity();

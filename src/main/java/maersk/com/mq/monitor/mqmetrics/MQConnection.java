@@ -43,13 +43,13 @@ public class MQConnection {
 
     private final static Logger log = LoggerFactory.getLogger(MQConnection.class);
 
-	@Value("${application.save.metrics.required:false}")
-    private boolean summaryRequired;
+	//@Value("${application.save.metrics.required:false}")
+    //private boolean summaryRequired;
 	
 	@Value("${ibm.mq.queueManager}")
-	private String queuemanager;
+	private String queuemanagername;
 	private String QueueManagerName() {
-		return this.queuemanager;
+		return this.queuemanagername;
 	}
 
 	@Value("${ibm.mq.user:#{null}}")
@@ -64,8 +64,8 @@ public class MQConnection {
 		return this.local;
 	}
 	
-	@Value("${ibm.mq.keepMetricsWhenQueueManagerIsDown:false}")
-	private boolean keepMetricsWhenQueueManagerIsDown;
+	//@Value("${ibm.mq.keepMetricsWhenQueueManagerIsDown:false}")
+	//private boolean keepMetricsWhenQueueManagerIsDown;
 	
 	//
 	@Value("${ibm.mq.useSSL:false}")
@@ -114,33 +114,30 @@ public class MQConnection {
     }
     
 	@Autowired
-	private MQQueueManagerStats qmStats;
+	private MQQueueManagerStats qmgrstats;
 	private MQQueueManagerStats QMStatsObject() {
-		return this.qmStats;
+		return this.qmgrstats;
 	}
 
-    private int reasonCode;
+    private int reasoncode;
     private void ReasonCode(int v) {
-    	this.reasonCode = v;
+    	this.reasoncode = v;
     }
     public int ReasonCode() {
-    	return this.reasonCode;
+    	return this.reasoncode;
     }
 	
-	@Autowired
-	private MQMonitorBase base;
-
     @Autowired
-    public MQMetricsQueueManager mqMetricsQueueManager;
+    public MQMetricsQueueManager mqmetricsqueuemanager;
     private MQMetricsQueueManager MQMetricQueueManager() {
-    	return this.mqMetricsQueueManager;
+    	return this.mqmetricsqueuemanager;
     }
 
     
 	@Autowired
-	private MQAccountingStats qmAcctStats;
+	private MQAccountingStats qmgraccountingstats;
 	public MQAccountingStats AccountingStats() {
-		return this.qmAcctStats;
+		return this.qmgraccountingstats;
 	}
     
     @Bean
@@ -178,7 +175,7 @@ public class MQConnection {
 	 *    
 	 */
 	@Scheduled(fixedDelayString="${ibm.mq.event.delayInMilliSeconds}")
-    public void scheduler() {
+    public void Scheduler() {
 	
 		try {
 			if (MessageAgent() != null) {
@@ -355,10 +352,10 @@ public class MQConnection {
 	 */
 	private void ProcessAccountingMetrics() throws MQDataException, IOException, ParseException, MQException {
 
-		List<AccountingEntity> list = MQMetricQueueManager().ReadAccountData();		
+		List<AccountingEntity> list = MQMetricQueueManager().ReadAccountingData();		
 		if (!list.isEmpty()) {
 			for (AccountingEntity ae : list) {
-				AccountingStats().createMetric(ae);				
+				AccountingStats().CreateMetric(ae);				
 				incrementNumberOfMessagesProcessed();
 			}
 		}
