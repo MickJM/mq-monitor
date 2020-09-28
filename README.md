@@ -108,7 +108,7 @@ The following MQ metrics are currently processed;
 
 MQ Metric | Type | Description
 ----------| ---- | -----------
-MQIAMO_OPENS | ACCOUNTING | Number of Opens operations that have occurred on a queue
+MQIAMO_OPENS | ACCOUNTING | Number of Open operations that have occurred on a queue
 MQIAMO_CLOSES | ACCOUNTING | Number of Close operations that have occurred on a queue
 MQIAMO_PUT_MAX_BYTES | ACCOUNTING | The maximum number of bytes written (PUT) to the queue
 MQIAMO_GET_MAX_BYTES | ACCOUNTING | The maximum number of bytes read (GET) from the queue
