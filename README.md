@@ -107,6 +107,7 @@ Event messages are generated in [IBMs PCF](https://www.ibm.com/support/knowledge
 The following MQ metrics are currently processed;
 
 MQ Metric | Type | Description
+----------| ---- | -----------
 MQIAMO_OPENS | ACCOUNTING | Number of Opens on a queue
 MQIAMO_CLOSES | ACCOUNTING | Number of closes on a queue
 MQIAMO_PUT_MAX_BYTES | ACCOUNTING | The maximum number of bytes written (PUT) to the queue
