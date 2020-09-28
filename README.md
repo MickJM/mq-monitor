@@ -104,5 +104,19 @@ JSON output can be sorted into Ascending or Descending order using the following
 
 Event messages are generated in [IBMs PCF](https://www.ibm.com/support/knowledgecenter/SSFKSJ_9.1.0/com.ibm.mq.adm.doc/q020000_.htm) format. 
 
-Messages are parsed to extract the metric.
+The following MQ metrics are currently processed;
+
+MQ Metric | Type | Description
+MQIAMO_OPENS | ACCOUNTING | Number of Opens on a queue
+MQIAMO_CLOSES | ACCOUNTING | Number of closes on a queue
+MQIAMO_PUT_MAX_BYTES | ACCOUNTING | The maximum number of bytes written (PUT) to the queue
+MQIAMO_GET_MAX_BYTES | ACCOUNTING | The maximum number of bytes read (GET) from the queue
+MQIAMO_PUTS | ACCOUNTING | The number of writes (PUTS) on the queue
+MQIAMO_GETS | ACCOUNTING | The number of reads (GETS) from the queue
+MQIAMO_PUTS_FAILED | ACCOUNTING | The number of failed writes **
+MQIAMO_GETS_FAILED | ACCOUNTING | The number of failed gets **
+MQIAMO_OPENS | ACCOUNTING | The number of opens
+MQIAMO_CLOSES | ACCOUNTING | The number of closes
+
+
 
