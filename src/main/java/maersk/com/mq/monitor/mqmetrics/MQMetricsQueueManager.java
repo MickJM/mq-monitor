@@ -224,51 +224,51 @@ public class MQMetricsQueueManager {
 	}
 
 	@Value("${ibm.mq.pcf.period.start:#{null}}")
-	private String startDate;	
-	public String getStartDate() {
-		return this.startDate;
+	private String startdate;	
+	public String StartDate() {
+		return this.startdate;
 	}
-	public void setStartDate(String v) {
-		this.startDate = v;
+	public void StartDate(String v) {
+		this.startdate = v;
 	}
 	
-	private Date startDateObject;
-	public Date getStartDateObject() {
-		return this.startDateObject;
+	private Date startdateobject;
+	public Date StartDateObject() {
+		return this.startdateobject;
 	}
-	public void setStartDateObject(Date v) {
-		this.startDateObject = v;
+	public void StartDateObject(Date v) {
+		this.startdateobject = v;
 	}
 	
 	@Value("${ibm.mq.pcf.period.end:#{null}}")
-	private String endDate;	
-	public String getEndDate() {
-		return this.endDate;
+	private String enddate;	
+	public String EndDate() {
+		return this.enddate;
 	}
-	public void setEndDate(String v) {
-		this.endDate = v;
+	public void EndDate(String v) {
+		this.enddate = v;
 	}
 
-	private Date endDateObject;
-	public Date getEndDateObject() {
-		return this.endDateObject;
+	private Date enddateobject;
+	public Date EndDateObject() {
+		return this.enddateobject;
 	}
-	public void setEndDateObject(Date v) {
-		this.endDateObject = v;
+	public void EndDateObject(Date v) {
+		this.enddateobject = v;
 	}
 	
 	@Value("${info.app.name:MQMonitor}")
-	private String appName;	
+	private String appname;	
 	public String AppName() {
-		return this.appName;
+		return this.appname;
 	}
 	
-	private int statType;
+	private int stattype;
 	public void StatType(int v) {
-		this.statType = v;
+		this.stattype = v;
 	}
 	public int StatType() {
-		return this.statType;
+		return this.stattype;
 	}
 
 	
@@ -325,12 +325,13 @@ public class MQMetricsQueueManager {
     	return this.messageAgent;
     }
 	
+   // @Autowired
     private MQQueueManager queManager;
-    public void setQmgr(MQQueueManager qm) {
-    	this.queManager = qm;
-    }
-    public MQQueueManager getQmgr() {
+    public MQQueueManager QmgrManagerObject() {
     	return this.queManager;
+    }
+    public void QmgrManagerObject(MQQueueManager qm) {
+    	this.queManager = qm;
     }
 
     private MQQueue queue = null;
@@ -401,16 +402,16 @@ public class MQMetricsQueueManager {
 			int array = 0;
 		
 			for (String w: getPCFParameters()) {
-				final int x = MQConstants.getIntValue(w);
-				if ((x != MQConstants.MQIAMO_PUT_MAX_BYTES) && (x != MQConstants.MQIAMO_GET_MAX_BYTES)
-						&& (x != MQConstants.MQIAMO_PUTS) && (x != MQConstants.MQIAMO_GETS)
-						&& (x != MQConstants.MQIAMO_PUTS_FAILED) && (x != MQConstants.MQIAMO_GETS_FAILED)
-						&& (x != MQConstants.MQIAMO_OPENS) && (x != MQConstants.MQIAMO_CLOSES)
+				final int val = MQConstants.getIntValue(w);
+				if ((val != MQConstants.MQIAMO_PUT_MAX_BYTES) && (val != MQConstants.MQIAMO_GET_MAX_BYTES)
+						&& (val != MQConstants.MQIAMO_PUTS) && (val != MQConstants.MQIAMO_GETS)
+						&& (val != MQConstants.MQIAMO_PUTS_FAILED) && (val != MQConstants.MQIAMO_GETS_FAILED)
+						&& (val != MQConstants.MQIAMO_OPENS) && (val != MQConstants.MQIAMO_CLOSES)
 						) {
-					log.error("Invalid PCF parameter : " + MQConstants.lookup(x, null));
+					log.error("Invalid PCF parameter : " + MQConstants.lookup(val, null));
 					throw new Exception("Invalid PCF Parameter");
 				}
-				s[array] = x;
+				s[array] = val;
 				array++;		
 			}
 			setSearchPCF(s);
@@ -423,13 +424,13 @@ public class MQMetricsQueueManager {
 		}
 
 		if (AccountingType() != null) {
-			int x = MQConstants.getIntValue(AccountingType());
-			if ((x != MQConstants.MQCFT_ACCOUNTING) && (x != MQConstants.MQCFT_STATISTICS)) {
+			int val = MQConstants.getIntValue(AccountingType());
+			if ((val != MQConstants.MQCFT_ACCOUNTING) && (val != MQConstants.MQCFT_STATISTICS)) {
 				log.warn("ibm.mq.pcf.accountingType is not set correctly, using MQCFT_ACCOUNTING");
 				AccountingType("MQCFT_ACCOUNTING");
-				x = MQConstants.getIntValue(AccountingType());
+				val = MQConstants.getIntValue(AccountingType());
 			}
-			setSearchAccountingType(x);
+			setSearchAccountingType(val);
 
 			if (MQConstants.getIntValue(AccountingType()) == MQConstants.MQCFT_STATISTICS) {
 				if ((Arrays.binarySearch(getSearchPCF(), MQConstants.MQIAMO_PUT_MAX_BYTES) >= 0) 
@@ -447,7 +448,7 @@ public class MQMetricsQueueManager {
 	 * Create an MQQueueManager object
 	 */
 	@SuppressWarnings("rawtypes")
-	public MQQueueManager CreateQueueManager() throws MQException, MQDataException, MalformedURLException {
+	public MQQueueManager CreateQueueManagerObject() throws MQException, MQDataException, MalformedURLException {
 		
 		Hashtable<String, Comparable> env = new Hashtable<String, Comparable>();
 		
@@ -552,7 +553,7 @@ public class MQMetricsQueueManager {
 			}
 		}
 		log.info("Connection to queue manager established ");
-		setQmgr(qmgr);
+		QmgrManagerObject(qmgr);
 		
 		return qmgr;
 	}
@@ -709,11 +710,11 @@ public class MQMetricsQueueManager {
 					MQConstants.MQOO_FAIL_IF_QUIESCING;			
 
 			if (getSearchAccountingType() == MQConstants.MQCFT_ACCOUNTING) {
-				Queue(getQmgr().accessQueue(getQueueName(), openOptions));
+				Queue(QmgrManagerObject().accessQueue(getQueueName(), openOptions));
 				StatType(MQConstants.MQCFT_ACCOUNTING);
 			}
 			if (getSearchAccountingType() == MQConstants.MQCFT_STATISTICS) {
-				Queue(getQmgr().accessQueue(getQueueName(), openOptions));
+				Queue(QmgrManagerObject().accessQueue(getQueueName(), openOptions));
 				StatType(MQConstants.MQCFT_STATISTICS);
 			}
 			setGMO(new MQGetMessageOptions());
@@ -744,30 +745,30 @@ public class MQMetricsQueueManager {
 		
 		try {
 			low = dateFormat.parse(LOW);
-			setStartDate(LOW);
-			Date d1 = dateFormat.parse(getStartDate());
-			setStartDateObject(d1);
+			StartDate(LOW);
+			Date d1 = dateFormat.parse(StartDate());
+			StartDateObject(d1);
 			
 		} catch (NullPointerException | ParseException e) {
 			log.warn("Start Date time period is invalid: format must be yyyy-MM-dd HH.mm.ss");
 			log.warn("Start Date time period will not be used");
-			setStartDateObject(low);
+			StartDateObject(low);
 		}		
 		
 		try {
 			high = dateFormat.parse(HIGH);
-			setEndDate(HIGH);
-			Date d2 = dateFormat.parse(getEndDate());
-			setEndDateObject(d2);
+			EndDate(HIGH);
+			Date d2 = dateFormat.parse(EndDate());
+			EndDateObject(d2);
 
 		} catch (NullPointerException | ParseException e) {
 			log.warn("End Date time period is invalid: format must be yyyy-MM-dd HH.mm.ss");
 			log.warn("End Date time period will not be used");
-			setEndDateObject(high);
+			EndDateObject(high);
 		}		
 		
-		if ((getStartDateObject() != null) || (getStartDateObject() != null)) {
-			log.info("Accounting / Statistics period is; start: " + getStartDate() + " end: " + getEndDate());
+		if ((StartDateObject() != null) || (StartDateObject() != null)) {
+			log.info("Accounting / Statistics period is; start: " + StartDate() + " end: " + EndDate());
 
 		} else {
 			log.info("Accounting / Statistics period is set for dates / times");
@@ -877,7 +878,7 @@ public class MQMetricsQueueManager {
 						} catch (ParseException e) {
 							// carry on
 						}
-						if (getStartDateObject().before(d1) && getEndDateObject().after(d2)) {
+						if (StartDateObject().before(d1) && EndDateObject().after(d2)) {
 							log.debug("Record found within date range ... control : " + cont);
 							msgPCFRecords: while (parms.hasMoreElements()) {
 								PCFParameter pcfParams = parms.nextElement();

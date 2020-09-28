@@ -35,9 +35,6 @@ public class MQAccountingStats {
 	@Autowired
 	public MeterRegistry meterRegistry;
     
-	//@Autowired
-	//private MQMonitorBase base;
-	 
     private Map<String,AtomicLong>hourMap = new HashMap<String,AtomicLong>();
     private Map<String,AtomicLong>dayMap = new HashMap<String,AtomicLong>();
     private Map<String,AtomicLong>weekMap = new HashMap<String,AtomicLong>();
@@ -205,17 +202,17 @@ public class MQAccountingStats {
 				}				
 				break;
 
-			case MQConstants.MQIAMO_GETS_FAILED:
+			case MQConstants.MQIAMO_GETS_FAILED:   // GET FAILS only has ONE value
 				log.debug("MQIAMO_FAILED");
 				GetsFailures(ae, cal);
 				break;
 				
-			case MQConstants.MQIAMO_PUTS_FAILED:
+			case MQConstants.MQIAMO_PUTS_FAILED:   // PUT FAILS only has ONE value
 				log.debug("MQIAMO_FAILED");
 				PutsFailures(ae, cal);	
 				break;
 
-			case MQConstants.MQIAMO_OPENS:
+			case MQConstants.MQIAMO_OPENS:         // OPEN only has ONE value
 				log.debug("MQIAMO_OPENS");
 				OpenEvents(ae, cal, MQConstants.MQPER_NOT_PERSISTENT);
 				break;
@@ -242,7 +239,7 @@ public class MQAccountingStats {
 		int monthOfYear = (cal.get(Calendar.MONTH) + 1); // Month is indexed from 0 !!, so, JAN = 0, FEB = 1 etc 
 		int year = cal.get(Calendar.YEAR);
 
-		StringBuilder hourLabel = meticsLabel(ae, cal, PUTSHOUR, MQConstants.MQCFUNC_MQPUT, per);		
+		StringBuilder hourLabel = MeticsLabel(ae, cal, PUTSHOUR, MQConstants.MQCFUNC_MQPUT, per);		
 		long v = 0l;
 		String pers = (per == MQConstants.MQPER_PERSISTENT) ? "true" : "false";
 		int timePeriods = getCollectionTotal();
@@ -251,7 +248,6 @@ public class MQAccountingStats {
 		 * Hour
 		 *
 		*/
-		//if (Arrays.binarySearch(getSearchCollections(), MQPCFConstants.HOURS) >= 0) {
 		if ((timePeriods & MQPCFConstants.HOURS) == MQPCFConstants.HOURS) {		
 			AtomicLong put = hourMap.get(hourLabel.toString());
 			if (put == null) {
@@ -276,9 +272,8 @@ public class MQAccountingStats {
 		/*
 		 * Day
 		 */
-		//if (Arrays.binarySearch(getSearchCollections(), MQPCFConstants.DAYS) >= 0) {
 		if ((timePeriods & MQPCFConstants.DAYS) == MQPCFConstants.DAYS) {
-			StringBuilder dayLabel = meticsLabel(ae, cal, PUTSDAY, MQConstants.MQCFUNC_MQPUT, per);		
+			StringBuilder dayLabel = MeticsLabel(ae, cal, PUTSDAY, MQConstants.MQCFUNC_MQPUT, per);		
 			AtomicLong put = dayMap.get(dayLabel.toString());
 			if (put == null) {
 				dayMap.put(dayLabel.toString(), this.meterRegistry.gauge(PUTSDAY, 
@@ -301,9 +296,8 @@ public class MQAccountingStats {
 		/*
 		 * Week
 		 */
-		//if (Arrays.binarySearch(getSearchCollections(), MQPCFConstants.WEEKS) >= 0) {
 		if ((timePeriods & MQPCFConstants.WEEKS) == MQPCFConstants.WEEKS) {
-			StringBuilder weekLabel = meticsLabel(ae, cal, PUTSWEEK, MQConstants.MQCFUNC_MQPUT, per);		
+			StringBuilder weekLabel = MeticsLabel(ae, cal, PUTSWEEK, MQConstants.MQCFUNC_MQPUT, per);		
 			AtomicLong put = weekMap.get(weekLabel.toString());
 			if (put == null) {
 				weekMap.put(weekLabel.toString(), this.meterRegistry.gauge(PUTSWEEK, 
@@ -325,9 +319,8 @@ public class MQAccountingStats {
 		/*
 		 * Month
 		 */
-		//if (Arrays.binarySearch(getSearchCollections(), MQPCFConstants.MONTHS) >= 0) {
 		if ((timePeriods & MQPCFConstants.MONTHS) == MQPCFConstants.MONTHS) {	
-			StringBuilder monthLabel = meticsLabel(ae, cal, PUTSMONTH, MQConstants.MQCFUNC_MQPUT, per);
+			StringBuilder monthLabel = MeticsLabel(ae, cal, PUTSMONTH, MQConstants.MQCFUNC_MQPUT, per);
 			AtomicLong put = monthMap.get(monthLabel.toString());
 			if (put == null) {
 				monthMap.put(monthLabel.toString(), this.meterRegistry.gauge(PUTSMONTH, 
@@ -348,9 +341,8 @@ public class MQAccountingStats {
 		/*
 		 * Year
 		 */
-		//if (Arrays.binarySearch(getSearchCollections(), MQPCFConstants.YEARS) >= 0) {
 		if ((timePeriods & MQPCFConstants.YEARS) == MQPCFConstants.YEARS) {
-			StringBuilder yearLabel = meticsLabel(ae, cal, PUTSYEAR, MQConstants.MQCFUNC_MQPUT, per);
+			StringBuilder yearLabel = MeticsLabel(ae, cal, PUTSYEAR, MQConstants.MQCFUNC_MQPUT, per);
 			AtomicLong put = yearMap.get(yearLabel.toString());
 			if (put == null) {
 				yearMap.put(yearLabel.toString(), this.meterRegistry.gauge(PUTSYEAR, 
@@ -379,7 +371,7 @@ public class MQAccountingStats {
 		int monthOfYear = (cal.get(Calendar.MONTH) + 1); // Month is indexed from 0 !!, so, JAN = 0, FEB = 1 etc 
 		int year = cal.get(Calendar.YEAR);
 
-		StringBuilder hourLabel = meticsLabel(ae, cal, GETSHOUR, MQConstants.MQCFUNC_MQGET, per);				
+		StringBuilder hourLabel = MeticsLabel(ae, cal, GETSHOUR, MQConstants.MQCFUNC_MQGET, per);				
 		long v = 0l;
 		String pers = (per == MQConstants.MQPER_PERSISTENT) ? "true" : "false";
 		int timePeriods = getCollectionTotal();
@@ -411,9 +403,8 @@ public class MQAccountingStats {
 		/*
 		 * Day
 		 */
-		//if (Arrays.binarySearch(getSearchCollections(), MQPCFConstants.DAYS) >= 0) {
 		if ((timePeriods & MQPCFConstants.DAYS) == MQPCFConstants.DAYS) {
-			StringBuilder dayLabel = meticsLabel(ae, cal, GETSDAY, MQConstants.MQCFUNC_MQGET, per);		
+			StringBuilder dayLabel = MeticsLabel(ae, cal, GETSDAY, MQConstants.MQCFUNC_MQGET, per);		
 			AtomicLong get = dayMap.get(dayLabel.toString());
 			if (get == null) {
 				dayMap.put(dayLabel.toString(), this.meterRegistry.gauge(GETSDAY, 
@@ -436,9 +427,8 @@ public class MQAccountingStats {
 		/*
 		 * Week
 		 */
-		//if (Arrays.binarySearch(getSearchCollections(), MQPCFConstants.WEEKS) >= 0) {
 		if ((timePeriods & MQPCFConstants.WEEKS) == MQPCFConstants.WEEKS) {			
-			StringBuilder weekLabel = meticsLabel(ae, cal, GETSWEEK, MQConstants.MQCFUNC_MQGET, per);		
+			StringBuilder weekLabel = MeticsLabel(ae, cal, GETSWEEK, MQConstants.MQCFUNC_MQGET, per);		
 			AtomicLong get = weekMap.get(weekLabel.toString());
 			if (get == null) {
 				weekMap.put(weekLabel.toString(), this.meterRegistry.gauge(GETSWEEK, 
@@ -461,9 +451,8 @@ public class MQAccountingStats {
 		/*
 		 * Month
 		 */
-		//if (Arrays.binarySearch(getSearchCollections(), MQPCFConstants.MONTHS) >= 0) {
 		if ((timePeriods & MQPCFConstants.MONTHS) == MQPCFConstants.MONTHS) {			
-			StringBuilder monthLabel = meticsLabel(ae, cal, GETSMONTH, MQConstants.MQCFUNC_MQGET, per);		
+			StringBuilder monthLabel = MeticsLabel(ae, cal, GETSMONTH, MQConstants.MQCFUNC_MQGET, per);		
 			AtomicLong get = monthMap.get(monthLabel.toString());
 			if (get == null) {
 				monthMap.put(monthLabel.toString(), this.meterRegistry.gauge(GETSMONTH, 
@@ -485,9 +474,8 @@ public class MQAccountingStats {
 		/*
 		 * Year
 		 */
-		//if (Arrays.binarySearch(getSearchCollections(), MQPCFConstants.YEARS) >= 0) {
 		if ((timePeriods & MQPCFConstants.YEARS) == MQPCFConstants.YEARS) {			
-			StringBuilder yearLabel = meticsLabel(ae, cal, GETSYEAR, MQConstants.MQCFUNC_MQGET, per);		
+			StringBuilder yearLabel = MeticsLabel(ae, cal, GETSYEAR, MQConstants.MQCFUNC_MQGET, per);		
 			AtomicLong get = yearMap.get(yearLabel.toString());
 			if (get == null) {
 				yearMap.put(yearLabel.toString(), this.meterRegistry.gauge(GETSYEAR, 
@@ -603,7 +591,7 @@ public class MQAccountingStats {
 		int monthOfYear = (cal.get(Calendar.MONTH) + 1); // Month is indexed from 0 !!, so, JAN = 0, FEB = 1 etc 
 		int year = cal.get(Calendar.YEAR);
 
-		StringBuilder hourLabel = meticsLabel(ae, cal, CLOSESHOUR, "CLOSE", per);				
+		StringBuilder hourLabel = MeticsLabel(ae, cal, CLOSESHOUR, "CLOSE", per);				
 		long v = 0l;
 		String pers = (per == MQConstants.MQPER_PERSISTENT) ? "true" : "false";
 		int timePeriods = getCollectionTotal();
@@ -635,7 +623,7 @@ public class MQAccountingStats {
 		 * Day
 		 */
 		if ((timePeriods & MQPCFConstants.DAYS) == MQPCFConstants.DAYS) {
-			StringBuilder dayLabel = meticsLabel(ae, cal, CLOSESDAY, "CLOSE", per);		
+			StringBuilder dayLabel = MeticsLabel(ae, cal, CLOSESDAY, "CLOSE", per);		
 			AtomicLong get = dayMap.get(dayLabel.toString());
 			if (get == null) {
 				dayMap.put(dayLabel.toString(), this.meterRegistry.gauge(CLOSESDAY, 
@@ -659,7 +647,7 @@ public class MQAccountingStats {
 		 * Week
 		 */
 		if ((timePeriods & MQPCFConstants.WEEKS) == MQPCFConstants.WEEKS) {			
-			StringBuilder weekLabel = meticsLabel(ae, cal, CLOSESWEEK, "CLOSE", per);		
+			StringBuilder weekLabel = MeticsLabel(ae, cal, CLOSESWEEK, "CLOSE", per);		
 			AtomicLong get = weekMap.get(weekLabel.toString());
 			if (get == null) {
 				weekMap.put(weekLabel.toString(), this.meterRegistry.gauge(CLOSESWEEK, 
@@ -683,7 +671,7 @@ public class MQAccountingStats {
 		 * Month
 		 */
 		if ((timePeriods & MQPCFConstants.MONTHS) == MQPCFConstants.MONTHS) {			
-			StringBuilder monthLabel = meticsLabel(ae, cal, CLOSESMONTH, "CLOSE", per);		
+			StringBuilder monthLabel = MeticsLabel(ae, cal, CLOSESMONTH, "CLOSE", per);		
 			AtomicLong get = monthMap.get(monthLabel.toString());
 			if (get == null) {
 				monthMap.put(monthLabel.toString(), this.meterRegistry.gauge(CLOSESMONTH, 
@@ -706,7 +694,7 @@ public class MQAccountingStats {
 		 * Year
 		 */
 		if ((timePeriods & MQPCFConstants.YEARS) == MQPCFConstants.YEARS) {			
-			StringBuilder yearLabel = meticsLabel(ae, cal, CLOSESYEAR, "CLOSE", per);		
+			StringBuilder yearLabel = MeticsLabel(ae, cal, CLOSESYEAR, "CLOSE", per);		
 			AtomicLong get = yearMap.get(yearLabel.toString());
 			if (get == null) {
 				yearMap.put(yearLabel.toString(), this.meterRegistry.gauge(CLOSESYEAR, 
@@ -735,7 +723,7 @@ public class MQAccountingStats {
 		int monthOfYear = (cal.get(Calendar.MONTH) + 1); // Month is indexed from 0 !!, so, JAN = 0, FEB = 1 etc 
 		int year = cal.get(Calendar.YEAR);
 
-		StringBuilder hourLabel = meticsLabel(ae, cal, OPENSHOUR, MQConstants.MQCFUNC_MQOPEN, per);				
+		StringBuilder hourLabel = MeticsLabel(ae, cal, OPENSHOUR, MQConstants.MQCFUNC_MQOPEN, per);				
 		long v = 0l;
 		String pers = (per == MQConstants.MQPER_PERSISTENT) ? "true" : "false";
 		int timePeriods = getCollectionTotal();
@@ -767,7 +755,7 @@ public class MQAccountingStats {
 		 * Day
 		 */
 		if ((timePeriods & MQPCFConstants.DAYS) == MQPCFConstants.DAYS) {
-			StringBuilder dayLabel = meticsLabel(ae, cal, OPENSDAY, MQConstants.MQCFUNC_MQOPEN, per);		
+			StringBuilder dayLabel = MeticsLabel(ae, cal, OPENSDAY, MQConstants.MQCFUNC_MQOPEN, per);		
 			AtomicLong get = dayMap.get(dayLabel.toString());
 			if (get == null) {
 				dayMap.put(dayLabel.toString(), this.meterRegistry.gauge(OPENSDAY, 
@@ -791,7 +779,7 @@ public class MQAccountingStats {
 		 * Week
 		 */
 		if ((timePeriods & MQPCFConstants.WEEKS) == MQPCFConstants.WEEKS) {			
-			StringBuilder weekLabel = meticsLabel(ae, cal, OPENSWEEK, MQConstants.MQCFUNC_MQOPEN, per);		
+			StringBuilder weekLabel = MeticsLabel(ae, cal, OPENSWEEK, MQConstants.MQCFUNC_MQOPEN, per);		
 			AtomicLong get = weekMap.get(weekLabel.toString());
 			if (get == null) {
 				weekMap.put(weekLabel.toString(), this.meterRegistry.gauge(OPENSWEEK, 
@@ -815,7 +803,7 @@ public class MQAccountingStats {
 		 * Month
 		 */
 		if ((timePeriods & MQPCFConstants.MONTHS) == MQPCFConstants.MONTHS) {			
-			StringBuilder monthLabel = meticsLabel(ae, cal, OPENSMONTH, MQConstants.MQCFUNC_MQOPEN, per);		
+			StringBuilder monthLabel = MeticsLabel(ae, cal, OPENSMONTH, MQConstants.MQCFUNC_MQOPEN, per);		
 			AtomicLong get = monthMap.get(monthLabel.toString());
 			if (get == null) {
 				monthMap.put(monthLabel.toString(), this.meterRegistry.gauge(OPENSMONTH, 
@@ -838,7 +826,7 @@ public class MQAccountingStats {
 		 * Year
 		 */
 		if ((timePeriods & MQPCFConstants.YEARS) == MQPCFConstants.YEARS) {			
-			StringBuilder yearLabel = meticsLabel(ae, cal, OPENSYEAR, MQConstants.MQCFUNC_MQOPEN, per);		
+			StringBuilder yearLabel = MeticsLabel(ae, cal, OPENSYEAR, MQConstants.MQCFUNC_MQOPEN, per);		
 			AtomicLong get = yearMap.get(yearLabel.toString());
 			if (get == null) {
 				yearMap.put(yearLabel.toString(), this.meterRegistry.gauge(OPENSYEAR, 
@@ -859,7 +847,7 @@ public class MQAccountingStats {
 	/*
 	 * Metric Label
 	 */
-	private StringBuilder meticsLabel(AccountingEntity ae, Calendar cal, String typeLabel, String mqType, int per) throws ParseException {
+	private StringBuilder MeticsLabel(AccountingEntity ae, Calendar cal, String typeLabel, String mqType, int per) throws ParseException {
 
 		int hourOfDay = cal.get(Calendar.HOUR_OF_DAY); 
 		int dayOfMonth = cal.get(Calendar.DAY_OF_MONTH);

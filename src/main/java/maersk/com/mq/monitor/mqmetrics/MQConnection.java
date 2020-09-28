@@ -43,9 +43,6 @@ public class MQConnection {
 
     private final static Logger log = LoggerFactory.getLogger(MQConnection.class);
 
-	//@Value("${application.save.metrics.required:false}")
-    //private boolean summaryRequired;
-	
 	@Value("${ibm.mq.queueManager}")
 	private String queuemanagername;
 	private String QueueManagerName() {
@@ -64,10 +61,6 @@ public class MQConnection {
 		return this.local;
 	}
 	
-	//@Value("${ibm.mq.keepMetricsWhenQueueManagerIsDown:false}")
-	//private boolean keepMetricsWhenQueueManagerIsDown;
-	
-	//
 	@Value("${ibm.mq.useSSL:false}")
 	private boolean usessl;
 	public boolean UseSSL() {
@@ -113,12 +106,6 @@ public class MQConnection {
     	this.numberOfMessagesProcessed++;
     }
     
-	@Autowired
-	private MQQueueManagerStats qmgrstats;
-	private MQQueueManagerStats QMStatsObject() {
-		return this.qmgrstats;
-	}
-
     private int reasoncode;
     private void ReasonCode(int v) {
     	this.reasoncode = v;
@@ -127,12 +114,17 @@ public class MQConnection {
     	return this.reasoncode;
     }
 	
+	@Autowired
+	private MQQueueManagerStats qmgrstats;
+	private MQQueueManagerStats QMStatsObject() {
+		return this.qmgrstats;
+	}
+    
     @Autowired
     public MQMetricsQueueManager mqmetricsqueuemanager;
     private MQMetricsQueueManager MQMetricQueueManager() {
     	return this.mqmetricsqueuemanager;
     }
-
     
 	@Autowired
 	private MQAccountingStats qmgraccountingstats;
@@ -159,7 +151,7 @@ public class MQConnection {
 		} catch (Exception e) {
 			// continue
 		}
-		IncrementNumberOfMessagesProcessed(0);
+		IncrementNumberOfMessagesProcessed(MQPCFConstants.PCF_INIT_VALUE);
 		
 	}
 	
@@ -264,7 +256,8 @@ public class MQConnection {
 		
 		WhichAuthentication();
 
-		QueueManagerObject(MQMetricQueueManager().CreateQueueManager());
+		MQMetricQueueManager().CreateQueueManagerObject();
+		QueueManagerObject(MQMetricQueueManager().QmgrManagerObject());
 		MessageAgent(MQMetricQueueManager().CreateMessageAgent(QueueManagerObject()));
 		
 		MQMetricQueueManager().QueueManagerName(QueueManagerName());

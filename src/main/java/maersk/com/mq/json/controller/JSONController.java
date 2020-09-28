@@ -30,6 +30,7 @@ import maersk.com.mq.json.entities.*;
 
 @RestController
 @ComponentScan
+@RequestMapping(value="/json")
 public class JSONController  {
 
 	static Logger log = LoggerFactory.getLogger(JSONController.class);
@@ -55,7 +56,7 @@ public class JSONController  {
 	/*
 	 * URI for ALL metrics
 	 */
-	@RequestMapping(method=RequestMethod.GET, value="/json/allmetrics", produces={"application/json"})
+	@RequestMapping(method=RequestMethod.GET, value="/allmetrics", produces={"application/json"})
 	public ResponseEntity<Object> AllMetrics() {
 
 		log.debug("REST JSON API invoked"); 
@@ -92,7 +93,7 @@ public class JSONController  {
 	/*
 	 * URI for mq metrics
 	 */
-	@RequestMapping(method=RequestMethod.GET, value="/json/mqmetrics", produces={"application/json"})
+	@RequestMapping(method=RequestMethod.GET, value="/mqmetrics", produces={"application/json"})
 	public ResponseEntity<Object> MQMetrics() {
 
 		log.debug("REST MQ JSON API invoked"); 		

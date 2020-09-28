@@ -1,6 +1,5 @@
 package maersk.com.mq.monitor.mqmetrics;
 
-import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.Collections;
@@ -8,13 +7,8 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,12 +18,9 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-
 import com.ibm.mq.MQException;
-import com.ibm.mq.MQQueueManager;
 import com.ibm.mq.constants.MQConstants;
 import com.ibm.mq.headers.MQDataException;
-
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.Meter;
 import io.micrometer.core.instrument.Tag;
@@ -81,7 +72,6 @@ public class MQMonitorApplicationTests {
 		assert (conn.ReasonCode() != MQPCFConstants.ERROR_IO_EXCEPTION) : "IO Exception occurred when trying to connect to a queue manager";
 		assert (conn.ReasonCode() != MQPCFConstants.ERROR_EXCEPTION) : "Exception occurred when trying to connect to a queue manager";
 		assert (conn.ReasonCode() == 0) : "MQ error occurred" ;
-		//assert (qm != null) : "Queue manager connection was not successful" ;
 		
 	}
 
