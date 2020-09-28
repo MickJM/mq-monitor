@@ -609,8 +609,7 @@ public class MQAccountingStats {
 								"day",String.valueOf(dayOfMonth),
 								"week",String.valueOf(weekOfYear),
 								"month",String.valueOf(monthOfYear),
-								"year",String.valueOf(year),
-								"persistence", pers
+								"year",String.valueOf(year)
 								),
 						new AtomicLong(ae.getValues()[per]))
 						);
@@ -632,8 +631,7 @@ public class MQAccountingStats {
 								"day",String.valueOf(dayOfMonth),
 								"week",String.valueOf(weekOfYear),
 								"month",String.valueOf(monthOfYear),
-								"year",String.valueOf(year),
-								"persistence", pers							
+								"year",String.valueOf(year)				
 								),
 						new AtomicLong(ae.getValues()[per]))
 						);
@@ -655,8 +653,7 @@ public class MQAccountingStats {
 								"queueName", ae.getQueueName(),
 								"week",String.valueOf(weekOfYear),
 								"month",String.valueOf(monthOfYear),
-								"year",String.valueOf(year),
-								"persistence", pers							
+								"year",String.valueOf(year)				
 								),
 						new AtomicLong(ae.getValues()[per]))
 						);
@@ -678,8 +675,7 @@ public class MQAccountingStats {
 						Tags.of("queueManagerName", ae.getQueueManagerName(),
 								"queueName", ae.getQueueName(),
 								"month",String.valueOf(monthOfYear),
-								"year",String.valueOf(year),
-								"persistence", pers							
+								"year",String.valueOf(year)				
 								),
 						new AtomicLong(ae.getValues()[per]))
 						);
@@ -700,8 +696,7 @@ public class MQAccountingStats {
 				yearMap.put(yearLabel.toString(), this.meterRegistry.gauge(CLOSESYEAR, 
 						Tags.of("queueManagerName", ae.getQueueManagerName(),
 								"queueName", ae.getQueueName(),
-								"year",String.valueOf(year),
-								"persistence", pers							
+								"year",String.valueOf(year)				
 								),
 						new AtomicLong(ae.getValues()[per]))
 						);
@@ -741,8 +736,7 @@ public class MQAccountingStats {
 								"day",String.valueOf(dayOfMonth),
 								"week",String.valueOf(weekOfYear),
 								"month",String.valueOf(monthOfYear),
-								"year",String.valueOf(year),
-								"persistence", pers
+								"year",String.valueOf(year)
 								),
 						new AtomicLong(ae.getValues()[per]))
 						);
@@ -764,8 +758,7 @@ public class MQAccountingStats {
 								"day",String.valueOf(dayOfMonth),
 								"week",String.valueOf(weekOfYear),
 								"month",String.valueOf(monthOfYear),
-								"year",String.valueOf(year),
-								"persistence", pers							
+								"year",String.valueOf(year)				
 								),
 						new AtomicLong(ae.getValues()[per]))
 						);
@@ -787,8 +780,7 @@ public class MQAccountingStats {
 								"queueName", ae.getQueueName(),
 								"week",String.valueOf(weekOfYear),
 								"month",String.valueOf(monthOfYear),
-								"year",String.valueOf(year),
-								"persistence", pers							
+								"year",String.valueOf(year)				
 								),
 						new AtomicLong(ae.getValues()[per]))
 						);
@@ -810,8 +802,7 @@ public class MQAccountingStats {
 						Tags.of("queueManagerName", ae.getQueueManagerName(),
 								"queueName", ae.getQueueName(),
 								"month",String.valueOf(monthOfYear),
-								"year",String.valueOf(year),
-								"persistence", pers							
+								"year",String.valueOf(year)				
 								),
 						new AtomicLong(ae.getValues()[per]))
 						);
@@ -832,8 +823,7 @@ public class MQAccountingStats {
 				yearMap.put(yearLabel.toString(), this.meterRegistry.gauge(OPENSYEAR, 
 						Tags.of("queueManagerName", ae.getQueueManagerName(),
 								"queueName", ae.getQueueName(),
-								"year",String.valueOf(year),
-								"persistence", pers							
+								"year",String.valueOf(year)				
 								),
 						new AtomicLong(ae.getValues()[per]))
 						);
