@@ -515,6 +515,14 @@ public class MQMetricsQueueManager {
 				}
 			} else {
 				log.debug("SSL is NOT enabled ....");
+				if (!StringUtils.isEmpty(UserId())) {
+					env.put(MQConstants.USER_ID_PROPERTY, UserId()); 
+					if (!StringUtils.isEmpty(Password())) {
+						env.put(MQConstants.PASSWORD_PROPERTY, Password());
+					}
+					env.put(MQConstants.USE_MQCSP_AUTHENTICATION_PROPERTY, MQCSP());
+				} 			
+				env.put(MQConstants.APPNAME_PROPERTY,AppName());
 			}
 			
 			if (!StringUtils.isEmpty(TrustStore())) {
