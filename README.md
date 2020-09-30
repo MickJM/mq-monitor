@@ -134,3 +134,60 @@ MQIAMO_GETS | STATISTICS | The number of reads (GETS) from the queue
 
 > Other STATISTICS metrics are available [here](https://www.ibm.com/support/knowledgecenter/SSFKSJ_9.1.0/com.ibm.mq.mon.doc/q037490_.htm) under `QStatisticsData`
 
+
+Example Statistics output in Prometheus format
+----------------------------------------------
+
+PUTs per year
+
+```
+# HELP mq:puts_per_year  
+# TYPE mq:puts_per_year gauge
+mq:puts_per_year{persistence="false",queueManagerName="QMAP01",queueName="IBM",year="2020",} 6.0
+mq:puts_per_year{persistence="false",queueManagerName="QMAP01",queueName="CPU_SUMMARY",year="2020",} 840.0
+mq:puts_per_year{persistence="false",queueManagerName="QMAP01",queueName="CPU_QMGR",year="2020",} 840.0
+```
+
+PUTs per month
+
+```
+# HELP mq:puts_per_month  
+# TYPE mq:puts_per_month gauge
+mq:puts_per_month{month="9",persistence="false",queueManagerName="QMAP01",queueName="IBM",year="2020",} 6.0
+mq:puts_per_month{month="9",persistence="false",queueManagerName="QMAP01",queueName="CPU_SUMMARY",year="2020",} 840.0
+mq:puts_per_month{month="9",persistence="false",queueManagerName="QMAP01",queueName="CPU_QMGR",year="2020",} 840.0
+```
+
+PUTs per day
+
+```
+# HELP mq:puts_per_day  
+# TYPE mq:puts_per_day gauge
+mq:puts_per_day{day="30",month="9",persistence="false",queueManagerName="QMAP01",queueName="CPU_SUMMARY",week="40",year="2020",} 840.0
+mq:puts_per_day{day="30",month="9",persistence="false",queueManagerName="QMAP01",queueName="CPU_QMGR",week="40",year="2020",} 840.0
+mq:puts_per_day{day="30",month="9",persistence="false",queueManagerName="QMAP01",queueName="IBM",week="40",year="2020",} 6.0
+```
+
+GETs per year
+
+```
+# HELP mq:gets_per_year  
+# TYPE mq:gets_per_year gauge
+mq:gets_per_year{persistence="false",queueManagerName="QMAP01",queueName="IBM",year="2020",} 6.0
+```
+
+GETs per month
+
+```
+# HELP mq:gets_per_month  
+# TYPE mq:gets_per_month gauge
+mq:gets_per_month{month="9",persistence="false",queueManagerName="QMAP01",queueName="IBM",year="2020",} 6.0
+```
+
+GETs per day
+
+```
+# HELP mq:gets_per_day  
+# TYPE mq:gets_per_day gauge
+mq:gets_per_day{day="30",month="9",persistence="false",queueManagerName="QMAP01",queueName="IBM",week="40",year="2020",} 6.0
+```
