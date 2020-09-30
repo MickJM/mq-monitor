@@ -134,8 +134,8 @@ MQIAMO_GETS | STATISTICS | The number of reads (GETS) from the queue
 
 > Other STATISTICS metrics are available [here](https://www.ibm.com/support/knowledgecenter/SSFKSJ_9.1.0/com.ibm.mq.mon.doc/q037490_.htm) under `QStatisticsData`
 
-Example Statistics output in Prometheus format
-----------------------------------------------
+Examples of Statistics output in Prometheus format
+--------------------------------------------------
 
 PUTs per year
 
@@ -199,8 +199,8 @@ Queue Manager status
 mq:queueManagerStatus{queueManagerName="QMAP01",} 2.0
 ```
 
-Example Accounting output in Prometheus format
-----------------------------------------------
+Examples of Accounting output in Prometheus format
+--------------------------------------------------
 
 MAX GET Message Size
 
