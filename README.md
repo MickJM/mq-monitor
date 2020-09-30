@@ -129,4 +129,7 @@ MQ Metric | Type | Description
 MQIAMO_PUTS | STATISTICS | The number of writes (PUTS) to the queue
 MQIAMO_GETS | STATISTICS | The number of reads (GETS) from the queue
 
+* Other ACCOUNTING metrics are available [here](https://www.ibm.com/support/knowledgecenter/SSFKSJ_9.1.0/com.ibm.mq.mon.doc/q037470_.htm) under `QAccountingData`
+
+** Other STATISTICS metrics are available [here](https://www.ibm.com/support/knowledgecenter/SSFKSJ_9.1.0/com.ibm.mq.mon.doc/q037490_.htm) under `QStatisticsData`
 

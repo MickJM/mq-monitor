@@ -890,9 +890,9 @@ public class MQMetricsQueueManager {
 							log.debug("Record found within date range ... control : " + cont);
 							msgPCFRecords: while (parms.hasMoreElements()) {
 								PCFParameter pcfParams = parms.nextElement();
-							
+								
 								switch (pcfParams.getParameter()) {
-
+									
 									default:
 										switch (pcfParams.getType()) {
 											case(MQConstants.MQCFT_GROUP):
@@ -1067,7 +1067,7 @@ public class MQMetricsQueueManager {
 															break;
 															
 														default:
-															log.debug("NON Processed event");
+															//log.debug("NONE Processed event : {}", grpPCFParams.getParameter());
 															break;
 															
 													} // end of switch

@@ -346,6 +346,7 @@ public class MQConnection {
 	private void ProcessAccountingMetrics() throws MQDataException, IOException, ParseException, MQException {
 
 		List<AccountingEntity> list = MQMetricQueueManager().ReadAccountingData();		
+		log.debug("AccountList count {}", list.size());
 		if (!list.isEmpty()) {
 			for (AccountingEntity ae : list) {
 				AccountingStats().CreateMetric(ae);				

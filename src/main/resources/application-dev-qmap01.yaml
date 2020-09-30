@@ -3,7 +3,7 @@ logging:
     org:
       springframework: OFF
     maersk:
-      com: INFO
+      com: DEBUG
 spring:
   security:
     user:
