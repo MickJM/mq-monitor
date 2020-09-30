@@ -134,7 +134,6 @@ MQIAMO_GETS | STATISTICS | The number of reads (GETS) from the queue
 
 > Other STATISTICS metrics are available [here](https://www.ibm.com/support/knowledgecenter/SSFKSJ_9.1.0/com.ibm.mq.mon.doc/q037490_.htm) under `QStatisticsData`
 
-
 Example Statistics output in Prometheus format
 ----------------------------------------------
 
@@ -191,3 +190,147 @@ GETs per day
 # TYPE mq:gets_per_day gauge
 mq:gets_per_day{day="30",month="9",persistence="false",queueManagerName="QMAP01",queueName="IBM",week="40",year="2020",} 6.0
 ```
+
+Queue Manager status
+
+```
+# HELP mq:queueManagerStatus  
+# TYPE mq:queueManagerStatus gauge
+mq:queueManagerStatus{queueManagerName="QMAP01",} 2.0
+```
+
+Example Accounting output in Prometheus format
+----------------------------------------------
+
+MAX GET Message Size
+
+```
+# HELP mq:queueMaxGetMsgSize  
+# TYPE mq:queueMaxGetMsgSize gauge
+mq:queueMaxGetMsgSize{queueManagerName="QMAP01",queueName="IBM",} 8.0
+```
+
+MAX PUT message size
+
+```
+# HELP mq:queueMaxPutMsgSize  
+# TYPE mq:queueMaxPutMsgSize gauge
+mq:queueMaxPutMsgSize{queueManagerName="QMAP01",queueName="IBM",} 8.0
+```
+
+PUTs per year
+
+```
+# HELP mq:puts_per_year  
+# TYPE mq:puts_per_year gauge
+mq:puts_per_year{persistence="false",queueManagerName="QMAP01",queueName="IBM",year="2020",} 6.0
+```
+
+PUTs per month
+
+```
+# HELP mq:puts_per_month  
+# TYPE mq:puts_per_month gauge
+mq:puts_per_month{month="9",persistence="false",queueManagerName="QMAP01",queueName="IBM",year="2020",} 6.0
+```
+
+PUTs per day
+
+```
+# HELP mq:puts_per_day  
+# TYPE mq:puts_per_day gauge
+mq:puts_per_day{day="30",month="9",persistence="false",queueManagerName="QMAP01",queueName="IBM",week="40",year="2020",} 6.0
+```
+
+GETs per year
+
+```
+# HELP mq:gets_per_year  
+# TYPE mq:gets_per_year gauge
+mq:gets_per_year{persistence="false",queueManagerName="QMAP01",queueName="IBM",year="2020",} 6.0
+```
+
+GETs per month
+
+```
+# HELP mq:gets_per_month  
+# TYPE mq:gets_per_month gauge
+mq:gets_per_month{month="9",persistence="false",queueManagerName="QMAP01",queueName="IBM",year="2020",} 6.0
+```
+
+GETS per day
+
+```
+# HELP mq:gets_per_day  
+# TYPE mq:gets_per_day gauge
+mq:gets_per_day{day="30",month="9",persistence="false",queueManagerName="QMAP01",queueName="IBM",week="40",year="2020",} 6.0
+```
+
+OPENs per year
+
+```
+# HELP mq:opens_per_year  
+# TYPE mq:opens_per_year gauge
+mq:opens_per_year{queueManagerName="QMAP01",queueName="IBM",year="2020",} 7.0
+```
+
+OPENs per month
+
+```
+# HELP mq:opens_per_month  
+# TYPE mq:opens_per_month gauge
+mq:opens_per_month{month="9",queueManagerName="QMAP01",queueName="IBM",year="2020",} 7.0
+```
+
+OPENs per day
+
+```
+# HELP mq:opens_per_day  
+# TYPE mq:opens_per_day gauge
+mq:opens_per_day{day="30",month="9",queueManagerName="QMAP01",queueName="IBM",week="40",year="2020",} 7.0
+```
+
+CLOSEs per year
+
+```
+# HELP mq:closes_per_year  
+# TYPE mq:closes_per_year gauge
+mq:closes_per_year{queueManagerName="QMAP01",queueName="IBM",year="2020",} 7.0
+```
+
+CLOSEs per month
+
+```
+# HELP mq:closes_per_month  
+# TYPE mq:closes_per_month gauge
+mq:closes_per_month{month="9",queueManagerName="QMAP01",queueName="IBM",year="2020",} 7.0
+```
+
+CLOSEs per day
+
+```
+# HELP mq:closes_per_day  
+# TYPE mq:closes_per_day gauge
+mq:closes_per_day{day="30",month="9",queueManagerName="QMAP01",queueName="IBM",week="40",year="2020",} 7.0
+```
+
+Queue Manager status
+
+```
+# HELP mq:queueManagerStatus  
+# TYPE mq:queueManagerStatus gauge
+mq:queueManagerStatus{queueManagerName="QMAP01",} 2.0
+```
+
+GET fails
+
+```
+# HELP mq:get_fails  
+# TYPE mq:get_fails gauge
+mq:get_fails{queueManagerName="QMAP01",queueName="IBM",} 1.0
+```
+
+
+
+
+

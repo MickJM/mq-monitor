@@ -14,7 +14,7 @@ ibm:
     queueManager: QMAP01
     channel: MQ.MONITOR.SVRCONN
     connName: localhost(1501)
-    queueName: SYSTEM.ADMIN.STATISTICS.QUEUE
+    queueName: SYSTEM.ADMIN.ACCOUNTING.QUEUE
     sslCipherSpec: TLS_RSA_WITH_AES_128_CBC_SHA256
     ibmCipherMapping: false
     useSSL: true
@@ -26,7 +26,7 @@ ibm:
     clearMetrics: 5
 # accounting / statistics, pcf values, browse true/false - false will delete records
     pcf:
-      accountingType: MQCFT_STATISTICS
+      accountingType: MQCFT_ACCOUNTING
       parameters: MQIAMO_OPENS, MQIAMO_CLOSES, MQIAMO_PUT_MAX_BYTES, MQIAMO_GET_MAX_BYTES, MQIAMO_PUTS, MQIAMO_GETS, MQIAMO_GETS_FAILED, MQIAMO_PUTS_FAILED
       browse: true
       period:
