@@ -137,6 +137,8 @@ MQIAMO_GETS | STATISTICS | The number of reads (GETS) from the queue
 Examples of Statistics output in Prometheus format
 --------------------------------------------------
 
+> All values are counts, unless otherwise stated.
+
 PUTs per year
 
 ```
@@ -199,8 +201,11 @@ Queue Manager status
 mq:queueManagerStatus{queueManagerName="QMAP01",} 2.0
 ```
 
+
 Examples of Accounting output in Prometheus format
 --------------------------------------------------
+
+> All values are counts, unless otherwise stated.
 
 MAX GET Message Size
 
