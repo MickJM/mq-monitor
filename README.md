@@ -107,7 +107,7 @@ Event messages are generated in [IBMs PCF](https://www.ibm.com/support/knowledge
 
 The following MQ metrics are currently processed;
 
-Accounting *literal asterisks*
+Accounting \*
 ------------
 
 MQ Metric | Type | Description
