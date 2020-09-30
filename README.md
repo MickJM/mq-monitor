@@ -57,6 +57,7 @@ ibm.mq.security.truststore-password: secret
 ibm.mq.security.keystore: {fully qualified file path}/keystore 
 ibm.mq.security.keystore-password: secret
 ```
+NOTE: Keystore and Truststore must be JKS files.
 
 `ibm.mq.useSSL` can be true of false, depending if the MQ server connection channel is configured to be SSL/TLS enabled.
 
@@ -106,6 +107,9 @@ Event messages are generated in [IBMs PCF](https://www.ibm.com/support/knowledge
 
 The following MQ metrics are currently processed;
 
+Accounting *
+------------
+
 MQ Metric | Type | Description
 ----------| ---- | -----------
 MQIAMO_OPENS | ACCOUNTING | Number of Open operations that have occurred on a queue
@@ -117,5 +121,12 @@ MQIAMO_GETS | ACCOUNTING | The number of reads (GETS) from the queue
 MQIAMO_PUTS_FAILED | ACCOUNTING | The number of failed writes **
 MQIAMO_GETS_FAILED | ACCOUNTING | The number of failed gets **
 
+Statistics *
+------------
+
+MQ Metric | Type | Description
+----------| ---- | -----------
+MQIAMO_PUTS | STATISTICS | The number of writes (PUTS) to the queue
+MQIAMO_GETS | STATISTICS | The number of reads (GETS) from the queue
 
 
