@@ -121,10 +121,10 @@ MQIAMO_GETS | ACCOUNTING | The number of reads (GETS) from the queue
 MQIAMO_PUTS_FAILED | ACCOUNTING | The number of failed writes **
 MQIAMO_GETS_FAILED | ACCOUNTING | The number of failed gets **
 
-Statistics *
-------------
+Statistics **
+-------------
 
-<div style="width:290px">MQ Metric</div> |<div style="width:200px">Type</div> | <div style="width:400px">Description</div>
+MQ Metric | Type | Description
 ----------| ---- | -----------
 MQIAMO_PUTS | STATISTICS | The number of writes (PUTS) to the queue
 MQIAMO_GETS | STATISTICS | The number of reads (GETS) from the queue
