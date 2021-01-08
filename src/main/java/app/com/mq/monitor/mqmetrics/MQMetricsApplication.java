@@ -6,8 +6,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-@ComponentScan(basePackages = { "maersk.com.mq.monitor.mqmetrics"} )
-@ComponentScan("maersk.com.mq.monitor.stats")
+@ComponentScan(basePackages = { "app.com.mq.monitor.mqmetrics"} )
+@ComponentScan("app.com.mq.monitor.stats")
 @SpringBootApplication
 @EnableScheduling
 public class MQMetricsApplication {
