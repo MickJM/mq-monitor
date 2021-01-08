@@ -1,4 +1,4 @@
-package maersk.com.mq.monitor.mqmetrics;
+package app.com.mq.monitor.mqmetrics;
 
 /*
  * Copyright 2019
@@ -33,10 +33,12 @@ import com.ibm.mq.constants.MQConstants;
 import com.ibm.mq.headers.MQDataException;
 import com.ibm.mq.headers.MQExceptionWrapper;
 import com.ibm.mq.headers.pcf.PCFMessageAgent;
+
+import app.com.mq.json.controller.JSONController;
+import app.com.mq.monitor.accounting.*;
+import app.com.mq.monitor.stats.*;
+
 import com.ibm.mq.headers.pcf.PCFException;
-import maersk.com.mq.monitor.accounting.*;
-import maersk.com.mq.monitor.stats.*;
-import maersk.com.mq.json.controller.JSONController;
 
 @Component
 public class MQConnection {

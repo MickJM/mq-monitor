@@ -1,4 +1,4 @@
-package maersk.com.mq.monitor.mqmetrics;
+package app.com.mq.monitor.mqmetrics;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
