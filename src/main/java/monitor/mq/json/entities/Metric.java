@@ -1,4 +1,4 @@
-package app.com.mq.json.entities;
+package monitor.mq.json.entities;
 
 import java.util.List;
 
@@ -8,7 +8,7 @@ import java.util.List;
 public class Metric {
 
 	public String name;
-	public List tags;
+	public List<?> tags;
 	public double value;
 
 	public String getName() {
@@ -17,10 +17,10 @@ public class Metric {
 	public void setName(String name) {
 		this.name = name;
 	}
-	public List getTags() {
+	public List<?> getTags() {
 		return tags;
 	}
-	public void setTags(List tags) {
+	public void setTags(List<?> tags) {
 		this.tags = tags;
 	}
 	public double getValue() {

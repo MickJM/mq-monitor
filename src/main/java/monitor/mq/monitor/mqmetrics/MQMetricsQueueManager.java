@@ -1,4 +1,4 @@
-package app.com.mq.monitor.mqmetrics;
+package monitor.mq.monitor.mqmetrics;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -35,7 +35,7 @@ import com.ibm.mq.headers.pcf.PCFMessage;
 import com.ibm.mq.headers.pcf.PCFMessageAgent;
 import com.ibm.mq.headers.pcf.PCFParameter;
 
-import app.com.mq.monitor.accounting.AccountingEntity;
+import monitor.mq.monitor.accounting.AccountingEntity;
 
 @Component
 public class MQMetricsQueueManager {

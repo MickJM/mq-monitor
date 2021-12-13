@@ -1,4 +1,4 @@
-package app.com.mq.monitor.mqmetrics;
+package monitor.mq.monitor.mqmetrics;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -22,14 +22,14 @@ import com.ibm.mq.MQException;
 import com.ibm.mq.constants.MQConstants;
 import com.ibm.mq.headers.MQDataException;
 
-import app.com.mq.json.entities.Metric;
-import app.com.mq.monitor.mqmetrics.MQConnection;
-import app.com.mq.monitor.mqmetrics.MQMetricsApplication;
-import app.com.mq.monitor.mqmetrics.MQPCFConstants;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.Meter;
 import io.micrometer.core.instrument.Tag;
 import io.micrometer.core.instrument.Meter.Id;
+import monitor.mq.json.entities.Metric;
+import monitor.mq.monitor.mqmetrics.MQConnection;
+import monitor.mq.monitor.mqmetrics.MQMetricsApplication;
+import monitor.mq.monitor.mqmetrics.MQPCFConstants;
 import io.micrometer.core.instrument.MeterRegistry;
 
 @RunWith(SpringRunner.class)

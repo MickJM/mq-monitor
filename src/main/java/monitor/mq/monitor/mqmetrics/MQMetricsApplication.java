@@ -1,4 +1,4 @@
-package app.com.mq.monitor.mqmetrics;
+package monitor.mq.monitor.mqmetrics;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -6,8 +6,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-@ComponentScan(basePackages = { "app.com.mq.monitor.mqmetrics"} )
-@ComponentScan("app.com.mq.monitor.stats")
+@ComponentScan(basePackages = { "monitor.mq.monitor.mqmetrics"} )
+@ComponentScan("monitor.mq.monitor.stats")
 @SpringBootApplication
 @EnableScheduling
 public class MQMetricsApplication {

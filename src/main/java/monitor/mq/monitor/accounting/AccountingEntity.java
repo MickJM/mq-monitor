@@ -1,4 +1,4 @@
-package app.com.mq.monitor.accounting;
+package monitor.mq.monitor.accounting;
 
 /*
  * Accounting PCF entity

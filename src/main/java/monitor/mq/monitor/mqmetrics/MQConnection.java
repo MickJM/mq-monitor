@@ -1,4 +1,4 @@
-package app.com.mq.monitor.mqmetrics;
+package monitor.mq.monitor.mqmetrics;
 
 /*
  * Copyright 2020
@@ -15,8 +15,6 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-//import org.apache.logging.log4j.Logger;
-//import org.apache.logging.log4j.LogManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,9 +31,9 @@ import com.ibm.mq.headers.MQDataException;
 import com.ibm.mq.headers.MQExceptionWrapper;
 import com.ibm.mq.headers.pcf.PCFMessageAgent;
 
-import app.com.mq.json.controller.JSONController;
-import app.com.mq.monitor.accounting.*;
-import app.com.mq.monitor.stats.*;
+import monitor.mq.json.controller.JSONController;
+import monitor.mq.monitor.accounting.*;
+import monitor.mq.monitor.stats.*;
 
 import com.ibm.mq.headers.pcf.PCFException;
 

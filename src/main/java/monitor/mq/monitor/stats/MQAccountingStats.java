@@ -1,4 +1,4 @@
-package app.com.mq.monitor.stats;
+package monitor.mq.monitor.stats;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -21,10 +21,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import com.ibm.mq.constants.MQConstants;
 
-import app.com.mq.monitor.accounting.AccountingEntity;
-import app.com.mq.monitor.mqmetrics.MQPCFConstants;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tags;
+import monitor.mq.monitor.accounting.AccountingEntity;
+import monitor.mq.monitor.mqmetrics.MQPCFConstants;
 
 @Component
 public class MQAccountingStats {

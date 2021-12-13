@@ -1,4 +1,4 @@
-package app.com.mq.monitor.stats;
+package monitor.mq.monitor.stats;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,9 +9,9 @@ import org.springframework.stereotype.Component;
 
 import com.ibm.mq.constants.MQConstants;
 
-import app.com.mq.monitor.mqmetrics.MQPCFConstants;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tags;
+import monitor.mq.monitor.mqmetrics.MQPCFConstants;
 
 @Component
 public class MQQueueManagerStats {

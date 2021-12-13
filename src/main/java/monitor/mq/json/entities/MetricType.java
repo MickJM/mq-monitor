@@ -1,4 +1,4 @@
-package app.com.mq.json.entities;
+package monitor.mq.json.entities;
 
 import java.util.List;
 
@@ -8,7 +8,7 @@ import java.util.List;
 public class MetricType {
 
 	public String name;
-	public List value;
+	public List<?> value;
 	
 	public String getName() {
 		return name;
@@ -16,10 +16,10 @@ public class MetricType {
 	public void setName(String name) {
 		this.name = name;
 	}
-	public List getValue() {
+	public List<?> getValue() {
 		return value;
 	}
-	public void setValue(List value) {
+	public void setValue(List<?> value) {
 		this.value = value;
 	}
 	
