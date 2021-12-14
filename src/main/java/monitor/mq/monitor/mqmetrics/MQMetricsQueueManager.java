@@ -17,7 +17,6 @@ import java.util.regex.Pattern;
 import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -121,8 +120,11 @@ public class MQMetricsQueueManager {
 	
 	@Value("${ibm.mq.useSSL:false}")
 	private boolean bUseSSL;
-	public boolean UseSSL() {
+	public boolean UsingSSL() {
 		return this.bUseSSL;
+	}
+	public void UsingSSL(boolean v) {
+		this.bUseSSL = v;
 	}
 	
 	@Value("${ibm.mq.security.truststore:}")
@@ -385,9 +387,6 @@ public class MQMetricsQueueManager {
 	protected final String LOW = "1970-01-01 00.00.00";
 	protected final String HIGH = "9999-12-31 23.59.59";
 
-	//@Autowired
-    //private MQMonitorBase base;
-
     /*
      * Constructor
      */
@@ -495,9 +494,15 @@ public class MQMetricsQueueManager {
 			log.debug("Password   : {}", "**********");
 			log.debug("Queue name : {}", getQueueName());
 			
-			if (UseSSL()) {
-				log.debug("SSL is enabled ....");
+			if (TrustStore() != null) {
+				UsingSSL(true);
+			} 
 
+			if (UsingSSL()) {
+				log.debug("SSL is enabled ....");
+			}
+			
+			if (UsingSSL()) {
 				if (!StringUtils.isEmpty(TrustStore())) {
 					System.setProperty("javax.net.ssl.trustStore", TrustStore());
 			        System.setProperty("javax.net.ssl.trustStorePassword", TrustStorePass());
@@ -624,7 +629,7 @@ public class MQMetricsQueueManager {
 		 * If we dont have a user or a certs are not being used, then we cant connect ... unless we are in local bindings
 		 */
 		if (validateUserId()) {
-			if (!UseSSL()) {
+			if (!UsingSSL()) {
 				log.error("Unable to connect to queue manager, credentials are missing and certificates are not being used");
 				System.exit(MQPCFConstants.EXIT_ERROR);
 			}
